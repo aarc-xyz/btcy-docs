@@ -1,0 +1,224 @@
+---
+title: "IBTCYHub Contract"
+description: "Technical reference for the IBTCYHub contract"
+---
+
+# IBTCYHub Contract
+
+Manages subscription (mint) and redemption (burn) requests for iBTCY.
+
+## Overview
+
+| Property | Value |
+|----------|-------|
+| Purpose | Async mint/redeem operations |
+| Escrow | Holds iBTCY during redemption |
+| Upgradeability | UUPS |
+
+## Storage Structs
+
+```solidity
+struct SubscriptionRequest {
+    address user;            // Who made the request
+    uint48 requestedAt;      // Timestamp
+    bool cancelled;          // Was it cancelled?
+    uint40 _reserved;        // Padding
+    uint256 amount;          // Total BTC amount
+    uint256 amountProcessed; // Processed so far
+}
+
+struct RedemptionRequest {
+    address user;            // Who made the request
+    uint48 requestedAt;      // Timestamp
+    bool isInstant;          // Instant or monthly?
+    bool cancelled;          // Was it cancelled?
+    uint32 _reserved;        // Padding
+    uint256 amount;          // Total iBTCY escrowed
+    uint256 amountProcessed; // Processed so far
+}
+```
+
+## State Variables
+
+```solidity
+// Token reference
+IIBTCY public ibtcy;
+
+// Oracles
+IAggregatorV3 public navOracle;
+IAggregatorV3 public btcUsdOracle;
+
+// Price validation
+uint256 constant ABSOLUTE_MIN_NAV = 0.5e8;
+uint256 public minNavPrice;
+uint256 public maxNavPrice;
+uint256 public maxPriceDeviationBps;
+uint256 public lastValidPrice;
+
+// Staleness
+uint256 public oracleWarningAge;
+uint256 public oracleBlockAge;
+
+// Minimums & Fees
+uint256 public minimumSubscriptionUsd;
+uint256 public minimumRedemptionUsd;
+uint256 public subscriptionFeeBps;
+uint256 public instantRedemptionFeeBps;
+uint256 public monthlyRedemptionFeeBps;
+uint256 constant MAX_FEE_BPS = 100;
+
+// Circuit breakers
+uint256 public maxSingleOperationBps;
+uint256 public circuitBreakerMintBps;
+uint256 public circuitBreakerRedeemBps;
+uint256 public circuitBreakerMinSupply;
+
+// Pause states
+bool public subscriptionsPaused;
+bool public redemptionsPaused;
+bool public processingPaused;
+
+// Escrow tracking
+uint256 public totalEscrowed;
+address public complianceTreasury;
+```
+
+## Subscription Functions
+
+```solidity
+function requestSubscription(address user, uint256 btcAmount)
+    external
+    onlyRole(REQUESTER_ROLE)
+    whenSubscriptionsNotPaused
+    returns (bytes32 depositId);
+
+function processSubscription(bytes32 depositId, uint256 processAmount)
+    external
+    onlyRole(PROCESSOR_ROLE)
+    whenProcessingNotPaused;
+
+function cancelSubscription(bytes32 depositId, string calldata reason)
+    external
+    onlyRole(PROCESSOR_ROLE);
+```
+
+## Redemption Functions
+
+```solidity
+function requestRedemption(address user, uint256 ibtcyAmount, bool isInstant)
+    external
+    onlyRole(REQUESTER_ROLE)
+    whenRedemptionsNotPaused
+    returns (bytes32 redemptionId);
+
+function processRedemption(bytes32 redemptionId, uint256 processAmount)
+    external
+    onlyRole(PROCESSOR_ROLE)
+    whenProcessingNotPaused;
+
+function cancelRedemption(bytes32 redemptionId)
+    external; // User within grace period OR PROCESSOR_ROLE
+```
+
+## Escrow Recovery
+
+```solidity
+function recoverEscrowedTokens(bytes32 redemptionId, string calldata legalReference)
+    external
+    onlyRole(DEFAULT_ADMIN_ROLE);
+
+function setComplianceTreasury(address treasury)
+    external
+    onlyRole(DEFAULT_ADMIN_ROLE);
+```
+
+## Configuration Functions
+
+```solidity
+// Fees (MANAGER_ADMIN_ROLE)
+function setSubscriptionFee(uint256 newFeeBps) external;
+function setInstantRedemptionFee(uint256 newFeeBps) external;
+function setMonthlyRedemptionFee(uint256 newFeeBps) external;
+
+// Price bounds (MANAGER_ADMIN_ROLE)
+function setMinNavPrice(uint256 newMin) external;
+function setMaxNavPrice(uint256 newMax) external;
+function setPriceDeviationBps(uint256 newBps) external;
+
+// Oracle (MANAGER_ADMIN_ROLE)
+function setNavOracle(address oracle) external;
+function setBtcUsdOracle(address oracle) external;
+function setOracleStaleness(uint256 warningAge, uint256 blockAge) external;
+```
+
+## Pause Functions
+
+```solidity
+function pauseSubscriptions() external onlyRole(PAUSER_ADMIN_ROLE);
+function unpauseSubscriptions() external onlyRole(PAUSER_ADMIN_ROLE);
+function pauseRedemptions() external onlyRole(PAUSER_ADMIN_ROLE);
+function unpauseRedemptions() external onlyRole(PAUSER_ADMIN_ROLE);
+function pauseProcessing() external onlyRole(PAUSER_ADMIN_ROLE);
+function unpauseProcessing() external onlyRole(PAUSER_ADMIN_ROLE);
+```
+
+## View Functions
+
+```solidity
+function getSubscriptionRequest(bytes32 id) external view returns (SubscriptionRequest memory);
+function getRedemptionRequest(bytes32 id) external view returns (RedemptionRequest memory);
+function getUserSubscriptions(address user) external view returns (bytes32[] memory);
+function getUserRedemptions(address user) external view returns (bytes32[] memory);
+function getPendingCounts() external view returns (uint256 pendingSubs, uint256 pendingReds);
+function getTotalEscrowed() external view returns (uint256);
+function getCurrentNav() external view returns (uint256 price, uint256 timestamp, bool isStale);
+function getOracleStatus() external view returns (uint256, uint256, uint256, bool, bool);
+function calculateMintAmount(uint256 btcAmount) external view returns (uint256);
+function calculateRedeemAmount(uint256 ibtcyAmount, bool isInstant) external view returns (uint256, uint256);
+```
+
+## Events
+
+```solidity
+// Subscription
+event SubscriptionRequested(bytes32 indexed id, address indexed user, uint256 amount);
+event SubscriptionProcessed(bytes32 indexed id, address indexed user, uint256 amountMinted, uint256 navPrice);
+event SubscriptionCancelled(bytes32 indexed id, address indexed user, string reason);
+
+// Redemption
+event RedemptionRequested(bytes32 indexed id, address indexed user, uint256 amount, bool isInstant);
+event RedemptionProcessed(bytes32 indexed id, address indexed user, uint256 amountBurned, uint256 feeAmount, uint256 navPrice);
+event RedemptionCancelled(bytes32 indexed id, address indexed user);
+
+// Configuration
+event FeeUpdated(string feeType, uint256 oldBps, uint256 newBps);
+event PriceBoundsUpdated(uint256 minPrice, uint256 maxPrice);
+event OracleUpdated(address indexed oldOracle, address indexed newOracle);
+
+// Monitoring
+event LargeOperation(string operationType, address indexed user, uint256 amount, uint256 percentOfSupply);
+event CircuitBreakerTriggered(uint256 amount, uint256 threshold, bool isRedeem);
+event OracleStaleWarning(uint256 age);
+
+// Escrow
+event EscrowRecovered(bytes32 indexed requestId, address indexed from, address indexed to, uint256 amount, string legalReference);
+```
+
+## Custom Errors
+
+```solidity
+error InvalidDepositId();
+error InvalidRedemptionId();
+error RequestCancelled();
+error ExceedsRemainingAmount();
+error CannotCancel();
+error OracleBlocked();
+error PriceOutOfBounds();
+error PriceDeviationTooHigh();
+error BelowMinimum();
+error CircuitBreakerTripped();
+error SubscriptionsPaused();
+error RedemptionsPaused();
+error ProcessingPaused();
+```
+

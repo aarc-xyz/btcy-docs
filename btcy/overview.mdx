@@ -1,0 +1,137 @@
+---
+title: "BTCY Overview"
+description: "The DeFi wrapper for iBTCY"
+---
+
+# BTCY Token
+
+BTCY is an **ERC-4626 vault token** that wraps iBTCY, enabling seamless DeFi integration.
+
+## Key Properties
+
+| Property | Value |
+|----------|-------|
+| **Standard** | ERC-4626 (tokenized vault) |
+| **Decimals** | 8 (matches iBTCY) |
+| **Exchange Rate** | 1:1 with iBTCY (always) |
+| **Transfers** | Blocklist only (no allowlist) |
+| **Withdrawals** | Allowlist required |
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    USER JOURNEY                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  iBTCY Token ──────► BTCY Vault ──────► DeFi Protocols │
+│  (Institutional)     (Wrap/Unwrap)      (Lending, DEX)  │
+│                                                         │
+│  Deposit (Wrap):   iBTCY → BTCY (anyone, blocklist only)│
+│  Withdraw (Unwrap): BTCY → iBTCY (allowlisted only)     │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Why BTCY?
+
+<CardGroup cols={2}>
+  <Card title="DeFi Composable" icon="puzzle-piece">
+    Works like any ERC-20 in lending protocols, DEXs, and yield aggregators
+  </Card>
+  <Card title="1:1 Backed" icon="scale-balanced">
+    Always backed 1:1 by iBTCY in the vault - no price risk
+  </Card>
+  <Card title="Permissionless Transfers" icon="arrows-left-right">
+    Anyone can transfer BTCY (only blocklist checked)
+  </Card>
+  <Card title="Standard Interface" icon="code">
+    ERC-4626 means easy integration for protocols
+  </Card>
+</CardGroup>
+
+## Access Control
+
+### Wrapping (Deposit)
+
+**Anyone can wrap** iBTCY into BTCY:
+- Only blocklist is checked
+- No allowlist required
+- No KYC for this step
+
+### Unwrapping (Withdraw)
+
+**Allowlist required** to unwrap:
+- Must be on BTCY's allowlist
+- Must also be on iBTCY's allowlist (to receive)
+- Dual requirement ensures compliance
+
+<Warning>
+  To unwrap BTCY → iBTCY, you must be allowlisted on **both** BTCY and iBTCY contracts.
+</Warning>
+
+## DeFi Use Cases
+
+### Lending Protocols
+
+Supply BTCY as collateral or lend it out for yield:
+
+```solidity
+// Example: Aave-style deposit
+aavePool.supply(address(btcy), amount, onBehalfOf, referralCode);
+```
+
+### DEX Trading
+
+Provide liquidity or trade BTCY:
+
+```solidity
+// Example: Uniswap LP
+uniswapRouter.addLiquidity(
+    address(btcy),
+    address(usdc),
+    btcyAmount,
+    usdcAmount,
+    ...
+);
+```
+
+### Collateral
+
+Use BTCY as collateral for borrowing:
+
+```solidity
+// Example: CDP-style
+vault.depositCollateral(address(btcy), amount);
+vault.borrow(daiAmount);
+```
+
+## Important Notes
+
+### No Force Capabilities
+
+<Note>
+  Unlike iBTCY, **BTCY has no force transfer or force redeem functions**. BTCY is an autonomous DeFi wrapper, not a regulated security.
+</Note>
+
+If a user is blocklisted while holding BTCY:
+- Cannot transfer BTCY
+- Cannot unwrap to iBTCY
+- Tokens are effectively frozen
+- No recovery mechanism exists
+
+### First Deposit Protection
+
+The vault mints 1,000,000 "dead shares" to `address(1)` on first deposit to prevent donation attacks.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Wrap iBTCY" icon="arrow-right" href="/btcy/wrapping">
+    Learn how to wrap iBTCY into BTCY
+  </Card>
+  <Card title="Unwrap BTCY" icon="arrow-left" href="/btcy/unwrapping">
+    Learn how to unwrap BTCY back to iBTCY
+  </Card>
+</CardGroup>
+

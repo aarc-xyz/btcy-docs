@@ -1,0 +1,76 @@
+---
+title: "Fees"
+description: "iBTCY fee structure"
+---
+
+# Fee Structure
+
+BTCY maintains a simple, transparent fee structure.
+
+## Current Fees
+
+| Fee Type | Rate | Description |
+|----------|------|-------------|
+| **Subscription (Mint)** | 0% | No fee to convert BTC → iBTCY |
+| **Instant Redemption** | 0.1% (10 bps) | Fee for T+0/T+1 redemption |
+| **Monthly Redemption** | 0% | No fee for standard redemption |
+| **Wrap (iBTCY → BTCY)** | 0% | No fee to wrap |
+| **Unwrap (BTCY → iBTCY)** | 0% | No fee to unwrap |
+
+<Info>
+  Maximum allowed fee is **1% (100 bps)**, hardcoded in the contract. Current fees are well below this cap.
+</Info>
+
+## Fee Details
+
+### Instant Redemption Fee
+
+The 0.1% fee on instant redemptions serves to:
+
+1. **Replenish the sleeve** - Maintains liquidity for future instant redemptions
+2. **Discourage arbitrage** - Prevents rapid in/out movements
+3. **Compensate liquidity** - Rewards the fund for maintaining liquid reserves
+
+**Example:**
+- Redeeming 100 iBTCY instantly at NAV 1.05
+- Gross BTC: 105 BTC
+- Fee (0.1%): 0.105 BTC
+- Net received: 104.895 BTC
+
+### Where Fees Go
+
+Fees are retained in the fund's "sleeve" (liquid reserve), benefiting all token holders indirectly.
+
+## Fee Changes
+
+Fee changes require `MANAGER_ADMIN_ROLE` (Ops 2/3 multisig) and are:
+
+- Subject to the 1% maximum cap
+- Logged on-chain via `FeeUpdated` event
+- Effective immediately upon transaction
+
+```solidity
+event FeeUpdated(string feeType, uint256 oldBps, uint256 newBps);
+```
+
+## No Hidden Fees
+
+<Check>
+  - No management fees
+  - No performance fees
+  - No withdrawal delays (instant path available)
+  - No lock-up periods
+</Check>
+
+## Gas Costs
+
+Users pay standard Ethereum gas fees for:
+
+- Requesting subscriptions/redemptions
+- Wrapping/unwrapping BTCY
+- Token transfers
+
+<Note>
+  Gas costs vary with network congestion. Consider timing transactions during lower-fee periods.
+</Note>
+

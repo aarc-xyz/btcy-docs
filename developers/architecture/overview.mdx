@@ -1,0 +1,141 @@
+---
+title: "Architecture Overview"
+description: "Technical architecture of the BTCY system"
+---
+
+# Architecture Overview
+
+BTCY consists of three core contracts plus supporting infrastructure.
+
+## System Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        BTCY ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│                      ┌─────────────────┐                        │
+│                      │   Chainlink     │                        │
+│                      │   Oracles       │                        │
+│                      └────────┬────────┘                        │
+│                               │                                 │
+│                               │ NAV + BTC/USD                   │
+│                               ▼                                 │
+│  ┌─────────────┐       ┌─────────────┐       ┌─────────────┐   │
+│  │   iBTCY     │◄─────►│  IBTCYHub   │       │    BTCY     │   │
+│  │   Token     │       │  (Escrow)   │       │    Vault    │   │
+│  │  (ERC-20)   │       │             │       │  (ERC-4626) │   │
+│  └──────┬──────┘       └─────────────┘       └──────┬──────┘   │
+│         │                                           │           │
+│         │◄──────────────────────────────────────────┘           │
+│         │              wrap/unwrap (1:1)                        │
+│         │                                                       │
+│         ▼                                                       │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    DeFi Protocols                        │   │
+│  │     (Lending, DEXs, Yield Aggregators, Collateral)       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Contract Overview
+
+### iBTCY Token
+
+| Property | Description |
+|----------|-------------|
+| **Standard** | ERC-20 + ERC-2612 (Permit) |
+| **Purpose** | Regulated security token |
+| **Key Features** | Allowlist, blocklist, force actions |
+| **Upgradeability** | UUPS with timelock |
+
+### IBTCYHub
+
+| Property | Description |
+|----------|-------------|
+| **Purpose** | Manages mint/redeem requests |
+| **Key Features** | Async operations, escrow, partial processing |
+| **Oracle Integration** | NAV + BTC/USD feeds |
+| **Upgradeability** | UUPS with timelock |
+
+### BTCY Vault
+
+| Property | Description |
+|----------|-------------|
+| **Standard** | ERC-4626 |
+| **Purpose** | DeFi wrapper for iBTCY |
+| **Exchange Rate** | Fixed 1:1 |
+| **Key Features** | Blocklist for transfers, allowlist for withdrawals |
+
+## Contract Inheritance
+
+```
+iBTCY Token
+├── ERC20Upgradeable
+├── ERC20PermitUpgradeable
+├── AccessControlUpgradeable
+├── PausableUpgradeable
+├── ReentrancyGuardUpgradeable
+└── UUPSUpgradeable
+
+IBTCYHub
+├── AccessControlUpgradeable
+├── PausableUpgradeable
+├── ReentrancyGuardUpgradeable
+└── UUPSUpgradeable
+
+BTCY Vault
+├── ERC4626Upgradeable
+├── AccessControlUpgradeable
+├── PausableUpgradeable
+├── ReentrancyGuardUpgradeable
+└── UUPSUpgradeable
+```
+
+## Storage Pattern
+
+All contracts use **ERC-7201 namespaced storage** to prevent slot collisions during upgrades:
+
+```solidity
+/// @custom:storage-location erc7201:aarc.storage.ibtcy
+struct IBTCYStorage {
+    mapping(address => bool) allowlisted;
+    mapping(address => bool) blocklisted;
+    bool allowlistEnabled;
+    // ...
+}
+```
+
+## Upgrade Pattern
+
+UUPS (Universal Upgradeable Proxy Standard) with timelocks:
+
+```
+┌─────────────────┐    48h delay    ┌─────────────────┐
+│ proposeUpgrade()│ ──────────────► │ executeUpgrade()│
+└─────────────────┘                 └─────────────────┘
+         │
+         │ cancelUpgrade()
+         ▼
+┌─────────────────┐
+│   (cancelled)   │
+└─────────────────┘
+```
+
+| Upgrade Type | Delay |
+|--------------|-------|
+| Normal | 48 hours |
+| Emergency | 12 hours |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Roles & Permissions" icon="users" href="/developers/architecture/roles-permissions">
+    Learn about access control
+  </Card>
+  <Card title="Oracle Integration" icon="chart-simple" href="/developers/architecture/oracle-pricing">
+    Understand NAV pricing
+  </Card>
+</CardGroup>
+

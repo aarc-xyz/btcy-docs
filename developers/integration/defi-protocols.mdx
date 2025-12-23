@@ -1,0 +1,179 @@
+---
+title: "DeFi Integration"
+description: "How to integrate BTCY into DeFi protocols"
+---
+
+# DeFi Integration
+
+BTCY is a standard ERC-20 / ERC-4626 token that integrates seamlessly with DeFi protocols.
+
+## Key Considerations
+
+### Token Properties
+
+| Property | Value | Note |
+|----------|-------|------|
+| Decimals | 8 | Different from typical 18 |
+| Standard | ERC-20 + ERC-4626 | Fully compatible |
+| Exchange Rate | 1:1 with iBTCY | Fixed, no appreciation |
+| Transfers | May fail | If sender/receiver blocklisted |
+
+### Blocklist Awareness
+
+BTCY transfers can fail if addresses are blocklisted:
+
+```solidity
+// Check before accepting BTCY
+function acceptBTCY(uint256 amount) external {
+    require(!btcy.isBlocklisted(msg.sender), "User blocklisted");
+    btcy.transferFrom(msg.sender, address(this), amount);
+}
+```
+
+## Integration Examples
+
+### Lending Protocol
+
+```solidity
+// Example: Accept BTCY as collateral
+contract LendingPool {
+    IERC20 public btcy;
+    
+    mapping(address => uint256) public collateral;
+    
+    function depositCollateral(uint256 amount) external {
+        // Check blocklist status
+        require(!IBTCY(address(btcy)).isBlocklisted(msg.sender), "Blocked");
+        
+        // Transfer BTCY from user
+        btcy.transferFrom(msg.sender, address(this), amount);
+        collateral[msg.sender] += amount;
+        
+        emit CollateralDeposited(msg.sender, amount);
+    }
+    
+    function withdrawCollateral(uint256 amount) external {
+        require(collateral[msg.sender] >= amount, "Insufficient");
+        
+        collateral[msg.sender] -= amount;
+        btcy.transfer(msg.sender, amount);
+        
+        emit CollateralWithdrawn(msg.sender, amount);
+    }
+}
+```
+
+### DEX / AMM
+
+```solidity
+// Example: Create BTCY/USDC liquidity pool
+contract SimpleLiquidityPool {
+    IERC20 public btcy;
+    IERC20 public usdc;
+    
+    function addLiquidity(uint256 btcyAmount, uint256 usdcAmount) external {
+        // Standard ERC-20 transfers work
+        btcy.transferFrom(msg.sender, address(this), btcyAmount);
+        usdc.transferFrom(msg.sender, address(this), usdcAmount);
+        
+        // Mint LP tokens...
+    }
+    
+    function swap(address tokenIn, uint256 amountIn) external returns (uint256) {
+        // BTCY works like any ERC-20 in swaps
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        
+        // Calculate output, transfer out...
+    }
+}
+```
+
+### Yield Aggregator
+
+```solidity
+// Example: Strategy that holds BTCY
+contract BTCYStrategy {
+    IERC4626 public btcyVault;
+    IERC20 public ibtcy;
+    
+    // Note: BTCY itself doesn't generate yield
+    // but can be used in yield-generating strategies
+    
+    function deposit(uint256 ibtcyAmount) external {
+        // Wrap iBTCY to BTCY
+        ibtcy.transferFrom(msg.sender, address(this), ibtcyAmount);
+        ibtcy.approve(address(btcyVault), ibtcyAmount);
+        btcyVault.deposit(ibtcyAmount, address(this));
+    }
+    
+    function withdraw(uint256 btcyAmount) external {
+        // Unwrap BTCY to iBTCY (requires allowlist)
+        btcyVault.withdraw(btcyAmount, msg.sender, address(this));
+    }
+}
+```
+
+## Interface Reference
+
+### IBTCY (BTCY Vault)
+
+```solidity
+interface IBTCY is IERC20, IERC4626 {
+    // Compliance
+    function isBlocklisted(address account) external view returns (bool);
+    function isAllowlisted(address account) external view returns (bool);
+    function isWithdrawAllowed(address account) external view returns (bool);
+    
+    // ERC-4626 (1:1 ratio)
+    function deposit(uint256 assets, address receiver) external returns (uint256);
+    function withdraw(uint256 assets, address receiver, address owner) external returns (uint256);
+    function convertToShares(uint256 assets) external view returns (uint256);
+    function convertToAssets(uint256 shares) external view returns (uint256);
+}
+```
+
+## Best Practices
+
+### 1. Handle Transfer Failures
+
+```solidity
+// BTCY transfers can revert if blocklisted
+try btcy.transfer(recipient, amount) {
+    // Success
+} catch {
+    // Handle blocked transfer - maybe use fallback
+}
+```
+
+### 2. Check Blocklist Before Operations
+
+```solidity
+modifier notBlocked(address user) {
+    require(!btcy.isBlocklisted(user), "User is blocklisted");
+    _;
+}
+```
+
+### 3. Account for 8 Decimals
+
+```solidity
+// BTCY uses 8 decimals, not 18
+uint256 oneToken = 1e8;  // Not 1e18
+
+// When mixing with 18-decimal tokens
+uint256 btcyAmount = usdcAmount * 1e8 / price / 1e6;
+```
+
+### 4. No Yield Expectations
+
+BTCY maintains a 1:1 ratio with iBTCY. The yield comes from iBTCY's NAV appreciation, not from holding BTCY itself.
+
+## Deployment Addresses
+
+See [Contract Addresses](/resources/contract-addresses) for deployed contract addresses.
+
+## Questions?
+
+- **Discord**: [Join our developer channel](https://discord.gg/aarc)
+- **Email**: developers@aarc.xyz
+

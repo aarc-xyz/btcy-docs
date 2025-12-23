@@ -1,0 +1,133 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about BTCY"
+---
+
+# Frequently Asked Questions
+
+<AccordionGroup>
+
+## General
+
+<Accordion title="What is BTCY?">
+  BTCY is a two-token system that brings institutional Bitcoin yield to DeFi. iBTCY is the regulated token backed by Sygnum's BTC yield fund, while BTCY is the DeFi wrapper that enables use in lending, DEXs, and other protocols.
+</Accordion>
+
+<Accordion title="What's the difference between iBTCY and BTCY?">
+  - **iBTCY**: Institutional token, KYC required, allowlist-restricted transfers, NAV-based pricing
+  - **BTCY**: DeFi wrapper, no KYC for transfers, 1:1 backed by iBTCY, works like any ERC-20
+</Accordion>
+
+<Accordion title="What yield can I expect?">
+  The underlying fund targets approximately 5% APY through Bitcoin yield strategies. This is reflected in the growing NAV of iBTCY.
+</Accordion>
+
+<Accordion title="Is BTCY audited?">
+  Yes, all smart contracts undergo security audits before mainnet deployment. Audit reports will be published in our documentation.
+</Accordion>
+
+## Eligibility & KYC
+
+<Accordion title="Who can participate?">
+  BTCY is available to accredited/qualified investors and institutions. A minimum investment of $100,000 USD equivalent is required.
+</Accordion>
+
+<Accordion title="What documents do I need for KYC?">
+  - Government-issued ID
+  - Proof of address
+  - Accreditation documentation
+  - Source of funds declaration
+  For institutions: corporate documents and beneficial ownership information.
+</Accordion>
+
+<Accordion title="How long does KYC take?">
+  Typically 1-3 business days for individuals, 3-5 days for institutions.
+</Accordion>
+
+<Accordion title="Can US persons invest?">
+  No, US persons are currently restricted from participating due to regulatory requirements.
+</Accordion>
+
+## Minting & Redeeming
+
+<Accordion title="What's the minimum investment?">
+  $100,000 USD equivalent in BTC for both minting (subscription) and redeeming.
+</Accordion>
+
+<Accordion title="How long does minting take?">
+  - **Instant path**: T+0 to T+1 if sleeve has capacity
+  - **Queued path**: Processed during monthly dealing window
+</Accordion>
+
+<Accordion title="What are the fees?">
+  - Subscription: 0%
+  - Instant redemption: 0.1%
+  - Monthly redemption: 0%
+  - Wrap/Unwrap: 0%
+</Accordion>
+
+<Accordion title="Can I cancel a redemption?">
+  You can cancel within 2 hours of requesting. After that, only admins can cancel.
+</Accordion>
+
+## Wrapping & Unwrapping
+
+<Accordion title="Do I need KYC to wrap iBTCY?">
+  No, wrapping only checks the blocklist. Any iBTCY holder can wrap to BTCY.
+</Accordion>
+
+<Accordion title="Do I need KYC to unwrap BTCY?">
+  Yes, you must be allowlisted on both BTCY and iBTCY to unwrap.
+</Accordion>
+
+<Accordion title="Why is the BTCY exchange rate always 1:1?">
+  BTCY is a simple vault wrapper, not a yield-generating vault. The 1:1 rate makes it predictable and easy to integrate.
+</Accordion>
+
+## Security
+
+<Accordion title="What happens if I get blocklisted?">
+  - You cannot transfer tokens
+  - You cannot wrap/unwrap
+  - Pending redemptions may be cancelled
+  - Compliance can recover escrowed tokens if needed
+</Accordion>
+
+<Accordion title="Can the contracts be upgraded?">
+  Yes, but with safeguards:
+  - Normal upgrades have 48-hour timelock
+  - Emergency upgrades have 12-hour timelock
+  - Admin can cancel proposed upgrades
+</Accordion>
+
+<Accordion title="What are circuit breakers?">
+  Automatic protection that pauses operations if a single transaction is too large (>50% of supply for mints, >40% for redemptions).
+</Accordion>
+
+## Technical
+
+<Accordion title="Why 8 decimals?">
+  Matches Bitcoin's precision (1 BTC = 100,000,000 satoshis) for intuitive UX and accurate calculations.
+</Accordion>
+
+<Accordion title="What oracle is used?">
+  Chainlink provides NAV and BTC/USD price feeds with multiple safety checks for staleness and manipulation.
+</Accordion>
+
+<Accordion title="Which networks are supported?">
+  Currently Ethereum mainnet. Additional networks may be added in the future.
+</Accordion>
+
+</AccordionGroup>
+
+## Still Have Questions?
+
+<CardGroup cols={2}>
+  <Card title="Discord" icon="discord" href="https://discord.gg/aarc">
+    Join our community for support
+  </Card>
+  <Card title="Email" icon="envelope" href="mailto:support@aarc.xyz">
+    Contact support directly
+  </Card>
+</CardGroup>
+

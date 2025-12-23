@@ -1,0 +1,142 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "BTCY Documentation",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#F7931A",
+    "light": "#FFB74D",
+    "dark": "#E65100",
+    "anchors": {
+      "from": "#F7931A",
+      "to": "#FF9800"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@aarc.xyz"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Launch App",
+    "url": "https://app.btcy.fi"
+  },
+  "tabs": [
+    {
+      "name": "Documentation",
+      "url": "/"
+    },
+    {
+      "name": "Developers",
+      "url": "developers"
+    },
+    {
+      "name": "Legal",
+      "url": "legal"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/aarc-xyz"
+    },
+    {
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://discord.gg/aarc"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "how-it-works",
+        "quick-start"
+      ]
+    },
+    {
+      "group": "Trust & Security",
+      "pages": [
+        "trust-security/security",
+        "trust-security/audits",
+        "trust-security/custody"
+      ]
+    },
+    {
+      "group": "iBTCY (Institutional Token)",
+      "pages": [
+        "ibtcy/overview",
+        "ibtcy/eligibility",
+        "ibtcy/minting",
+        "ibtcy/redeeming",
+        "ibtcy/fees"
+      ]
+    },
+    {
+      "group": "BTCY (DeFi Wrapper)",
+      "pages": [
+        "btcy/overview",
+        "btcy/wrapping",
+        "btcy/unwrapping"
+      ]
+    },
+    {
+      "group": "Risks",
+      "pages": [
+        "risks/risk-factors"
+      ]
+    },
+    {
+      "group": "Resources",
+      "pages": [
+        "resources/contract-addresses",
+        "resources/supported-networks",
+        "resources/glossary",
+        "resources/faq"
+      ]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "developers/architecture/overview",
+        "developers/architecture/roles-permissions",
+        "developers/architecture/oracle-pricing"
+      ]
+    },
+    {
+      "group": "Smart Contracts",
+      "pages": [
+        "developers/contracts/ibtcy",
+        "developers/contracts/ibtcy-hub",
+        "developers/contracts/btcy-vault",
+        "developers/contracts/pricer"
+      ]
+    },
+    {
+      "group": "Integration",
+      "pages": [
+        "developers/integration/defi-protocols",
+        "developers/integration/events"
+      ]
+    },
+    {
+      "group": "Legal",
+      "pages": [
+        "legal/terms",
+        "legal/privacy"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/AarcHQ",
+    "github": "https://github.com/aarc-xyz",
+    "linkedin": "https://www.linkedin.com/company/aarc-xyz"
+  }
+}
+

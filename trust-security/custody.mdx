@@ -1,0 +1,73 @@
+---
+title: "Custody & Reserves"
+description: "How BTCY assets are custodied and managed"
+---
+
+# Custody & Reserves
+
+BTCY is backed by real Bitcoin held in institutional custody.
+
+## Custody Partners
+
+### Sygnum Bank
+
+- **Type**: Swiss-regulated bank
+- **License**: FINMA banking license
+- **Role**: Custodian for the underlying BTC yield fund
+
+### Archax
+
+- **Type**: UK FCA-regulated exchange
+- **Role**: Execution and custody partner
+
+## Reserve Structure
+
+The underlying fund maintains reserves in two components:
+
+| Component | Allocation | Purpose |
+|-----------|------------|---------|
+| **Sleeve** | ~32% of AUM | Liquid BTC for instant redemptions |
+| **Yield Strategies** | ~68% of AUM | Generating ~5% APY |
+
+<Info>
+  The sleeve ensures users can redeem instantly (T+0/T+1) without waiting for monthly dealing windows.
+</Info>
+
+## NAV Calculation
+
+Net Asset Value is calculated as:
+
+```
+NAV = Total Fund Assets (in BTC) / Total iBTCY Supply
+```
+
+- Updated via Chainlink oracle
+- Reflects yield accumulation over time
+- Starting NAV: 1.0 BTC per iBTCY
+
+## Transparency
+
+### On-Chain Verification
+
+- Total iBTCY supply is publicly visible
+- BTCY vault holdings are on-chain
+- All transactions are traceable
+
+### Attestations
+
+*Coming Soon*
+
+Regular third-party attestations of reserves will be published.
+
+## Legal Structure
+
+| Entity | Role |
+|--------|------|
+| Aarc BVI SPV | Token issuer |
+| Sygnum Fund | Underlying yield fund (Swiss AMC) |
+| Archax | Custody & execution |
+
+<Note>
+  iBTCY is structured as a Swiss Actively Managed Certificate (AMC), providing clear legal ownership rights.
+</Note>
+

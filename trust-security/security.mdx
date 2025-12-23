@@ -1,0 +1,103 @@
+---
+title: "Security Model"
+description: "How BTCY protects your assets"
+---
+
+# Security Model
+
+BTCY is built with institutional-grade security at every layer.
+
+## Smart Contract Security
+
+### Access Control
+
+All contracts use role-based access control with multiple signers:
+
+| Role | Holder | Purpose |
+|------|--------|---------|
+| `DEFAULT_ADMIN` | Cold 3/5 multisig | Role management, upgrades |
+| `UPGRADER` | Cold 3/5 multisig | Propose contract upgrades |
+| `COMPLIANCE` | Ops 2/3 multisig | Allowlist/blocklist management |
+| `PROCESSOR` | Ops 2/3 multisig | Process mint/redeem requests |
+| `PAUSER` | Any admin (1/N) | Emergency pause |
+
+### Timelocks
+
+Contract upgrades are protected by timelocks:
+
+- **Normal upgrades**: 48-hour delay
+- **Emergency upgrades**: 12-hour delay
+
+<Info>
+  During the timelock period, `DEFAULT_ADMIN` can cancel a proposed upgrade if issues are discovered.
+</Info>
+
+### Circuit Breakers
+
+Automatic protection against large, potentially malicious operations:
+
+| Trigger | Threshold | Action |
+|---------|-----------|--------|
+| Large mint | > 50% of supply | Auto-pause |
+| Large redeem | > 40% of supply | Auto-pause |
+| Single operation | > 10% of supply | Revert (no pause) |
+
+### Reentrancy Protection
+
+All state-changing functions use OpenZeppelin's `ReentrancyGuard`.
+
+## Oracle Security
+
+NAV pricing uses Chainlink oracles with multiple safety checks:
+
+```solidity
+require(answer > 0, "Price is zero");
+require(updatedAt > 0, "Round incomplete");
+require(answeredInRound >= roundId, "Stale round");
+require(block.timestamp - updatedAt < 48 hours, "Oracle stale");
+```
+
+### Staleness Handling
+
+| Oracle Age | Behavior |
+|------------|----------|
+| < 24 hours | ✅ Use new price |
+| 24-48 hours | ⚠️ Use last valid price, emit warning |
+| > 48 hours | ❌ Block all operations |
+
+### Price Bounds
+
+- **Minimum NAV**: 0.5 BTC (hardcoded floor)
+- **Maximum deviation**: 5% per update
+
+## Compliance Controls
+
+### Blocklist
+- Checked **first** on all operations (fail fast)
+- Blocklisted addresses cannot send, receive, or interact
+
+### Allowlist
+- Required for iBTCY transfers
+- Required for BTCY withdrawals (unwrap)
+
+## Emergency Procedures
+
+### Pause Capabilities
+
+| Contract | Pause Scope |
+|----------|-------------|
+| iBTCY | All transfers |
+| IBTCYHub | Subscriptions, Redemptions, Processing (granular) |
+| BTCY Vault | Deposits, Withdrawals |
+
+<Warning>
+  **Cancel functions always work**, even when paused. Users can always cancel pending redemptions within the grace period.
+</Warning>
+
+## Best Practices
+
+1. **Use hardware wallets** for holding iBTCY/BTCY
+2. **Verify contract addresses** before interacting
+3. **Monitor events** for large operations via our dashboard
+4. **Report issues** to security@aarc.xyz
+

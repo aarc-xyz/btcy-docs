@@ -1,0 +1,146 @@
+---
+title: "Unwrapping BTCY"
+description: "How to unwrap BTCY back to iBTCY"
+---
+
+# Unwrapping BTCY → iBTCY
+
+Withdraw from the BTCY vault to receive your iBTCY tokens back.
+
+## Prerequisites
+
+<Check>
+  - Hold BTCY in your wallet
+  - Allowlisted on BTCY contract
+  - Allowlisted on iBTCY contract
+  - Not blocklisted on either
+</Check>
+
+<Warning>
+  **Dual allowlist required**: You must be on both BTCY's and iBTCY's allowlists to unwrap.
+</Warning>
+
+## How to Unwrap
+
+<Steps>
+  <Step title="Verify Allowlist Status">
+    Check you're allowlisted on both contracts:
+    
+    ```solidity
+    require(btcyVault.isAllowlisted(msg.sender), "Not on BTCY allowlist");
+    require(ibtcy.isAllowlisted(msg.sender), "Not on iBTCY allowlist");
+    ```
+  </Step>
+  
+  <Step title="Withdraw (Unwrap)">
+    Call withdraw on the BTCY vault:
+    
+    ```solidity
+    uint256 shares = btcyVault.withdraw(assets, receiver, owner);
+    ```
+  </Step>
+  
+  <Step title="Receive iBTCY">
+    iBTCY tokens transferred 1:1 to receiver
+  </Step>
+</Steps>
+
+## Code Example
+
+```solidity
+// Full unwrapping example
+import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+
+contract UnwrapExample {
+    IERC4626 public btcyVault;
+    
+    function unwrap(uint256 amount) external {
+        // Withdraw iBTCY by burning BTCY
+        // Caller must be allowlisted
+        uint256 sharesBurned = btcyVault.withdraw(
+            amount,      // assets (iBTCY) to receive
+            msg.sender,  // receiver of iBTCY
+            msg.sender   // owner of BTCY shares
+        );
+        
+        // sharesBurned == amount (1:1 ratio)
+    }
+    
+    // Alternative: withdraw on behalf of another user
+    function unwrapFrom(uint256 amount, address owner) external {
+        // Requires owner to have approved this contract
+        btcyVault.withdraw(amount, msg.sender, owner);
+    }
+}
+```
+
+## ERC-4626 Interface
+
+```solidity
+// Preview how much BTCY will be burned
+uint256 shares = btcyVault.previewWithdraw(assets);
+
+// Check maximum you can withdraw
+uint256 maxWithdraw = btcyVault.maxWithdraw(owner);
+
+// Withdraw by specifying assets
+uint256 shares = btcyVault.withdraw(assets, receiver, owner);
+
+// Alternative: specify shares to burn
+uint256 assets = btcyVault.redeem(shares, receiver, owner);
+```
+
+## Access Control
+
+| Check | Requirement |
+|-------|-------------|
+| Owner | Must be allowlisted on BTCY |
+| Caller | Must be allowlisted on BTCY (if different from owner) |
+| Receiver | Must be allowlisted on BTCY (if different) |
+| Receiver | Must be allowlisted on **iBTCY** (to receive transfer) |
+
+<Info>
+  All checks use blocklist-first (fail fast) pattern, then allowlist checks.
+</Info>
+
+## Why Dual Allowlist?
+
+When you unwrap, you're converting back to the regulated iBTCY token:
+
+1. **BTCY allowlist** - Controls who can perform withdrawals from the vault
+2. **iBTCY allowlist** - Controls who can receive iBTCY tokens
+
+Both must pass for the transaction to succeed.
+
+## Fees
+
+| Fee | Rate |
+|-----|------|
+| Unwrap fee | 0% |
+
+## Getting Allowlisted
+
+To unwrap, you need to be allowlisted on both contracts:
+
+1. Complete KYC through the BTCY app
+2. Your address will be added to both allowlists
+3. You can then unwrap freely
+
+<Card title="Start KYC" icon="user-check" href="https://app.btcy.fi/onboard">
+  Complete verification to enable unwrapping
+</Card>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Transaction reverts with 'Owner not allowlisted'">
+    The owner of the BTCY shares isn't on the BTCY allowlist. Complete KYC first.
+  </Accordion>
+  <Accordion title="Transaction reverts with 'Receiver not allowlisted'">
+    The receiver isn't allowlisted on iBTCY. Use an allowlisted address as receiver.
+  </Accordion>
+  <Accordion title="Can I unwrap to a different address?">
+    Yes, if the receiver is allowlisted on both contracts. Use the `receiver` parameter.
+  </Accordion>
+</AccordionGroup>
+

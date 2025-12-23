@@ -1,0 +1,149 @@
+---
+title: "Roles & Permissions"
+description: "Access control system for BTCY contracts"
+---
+
+# Roles & Permissions
+
+BTCY uses OpenZeppelin's AccessControl with custom role definitions.
+
+## Role Overview
+
+### iBTCY Token Roles
+
+| Role | Holder | Permissions |
+|------|--------|-------------|
+| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Grant/revoke roles, cancel upgrades |
+| `MINTER_ROLE` | Hub contract | `mint()` |
+| `BURNER_ROLE` | Hub contract | `burn()` |
+| `COMPLIANCE_ROLE` | Ops 2/3 multisig | Allowlist/blocklist, force actions |
+| `PAUSER_ROLE` | Any admin (1/N) | `pause()`, `unpause()` |
+| `UPGRADER_ROLE` | Cold 3/5 multisig | `proposeUpgrade()` |
+| `RESCUER_ROLE` | Ops 2/3 multisig | `rescueERC20()`, `rescueETH()` |
+
+### IBTCYHub Roles
+
+| Role | Holder | Permissions |
+|------|--------|-------------|
+| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Role management, escrow recovery |
+| `MANAGER_ADMIN_ROLE` | Ops 2/3 multisig | Configure fees, limits, oracles |
+| `REQUESTER_ROLE` | Backend hot wallet | Create requests on behalf of users |
+| `PROCESSOR_ROLE` | Ops 2/3 multisig | Process requests with NAV |
+| `PAUSER_ADMIN_ROLE` | Any admin (1/N) | Granular pause controls |
+| `UPGRADER_ROLE` | Cold 3/5 multisig | Propose upgrades |
+| `RESCUER_ROLE` | Ops 2/3 multisig | Rescue stuck tokens |
+
+### BTCY Vault Roles
+
+| Role | Holder | Permissions |
+|------|--------|-------------|
+| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Role management |
+| `COMPLIANCE_ROLE` | Ops 2/3 multisig | Allowlist/blocklist |
+| `PAUSER_ROLE` | Any admin (1/N) | `pause()`, `unpause()` |
+| `UPGRADER_ROLE` | Cold 3/5 multisig | Propose upgrades |
+| `RESCUER_ROLE` | Ops 2/3 multisig | Rescue stuck tokens |
+
+## Multisig Types
+
+### Cold Multisig (3/5)
+
+**High-security operations:**
+- Role management
+- Upgrade proposals
+- Upgrade cancellation
+- Escrowed token recovery
+
+**Characteristics:**
+- 3 of 5 signers required
+- Keys stored in cold storage
+- Intended for rare operations
+
+### Ops Multisig (2/3)
+
+**Day-to-day operations:**
+- Processing requests
+- Compliance actions
+- Fee/limit configuration
+- Token rescue
+
+**Characteristics:**
+- 2 of 3 signers required
+- More accessible keys
+- Daily operational use
+
+## Role Protection
+
+### Two-Step Transfer
+
+Critical roles (`DEFAULT_ADMIN_ROLE`, `UPGRADER_ROLE`) use two-step transfer:
+
+```solidity
+// Step 1: Propose new holder
+beginRoleTransfer(role, newHolder);
+
+// Step 2: New holder accepts
+acceptRoleTransfer(role); // Called by newHolder
+```
+
+### Cannot Renounce Admin
+
+```solidity
+function renounceRole(bytes32 role, address account) public override {
+    require(role != DEFAULT_ADMIN_ROLE, "Cannot renounce admin");
+    super.renounceRole(role, account);
+}
+```
+
+### PAUSER Can Unpause
+
+Unlike some implementations, the `PAUSER_ROLE` can both pause AND unpause:
+
+```solidity
+function pause() external onlyRole(PAUSER_ROLE);
+function unpause() external onlyRole(PAUSER_ROLE);
+```
+
+## Permission Matrix
+
+### iBTCY Token
+
+| Function | DEFAULT_ADMIN | COMPLIANCE | PAUSER | MINTER | BURNER | RESCUER |
+|----------|:-------------:|:----------:|:------:|:------:|:------:|:-------:|
+| `grantRole` | ✅ | | | | | |
+| `addToAllowlist` | | ✅ | | | | |
+| `addToBlocklist` | | ✅ | | | | |
+| `forceTransfer` | | ✅ | | | | |
+| `forceRedeem` | | ✅ | | | | |
+| `pause` | | | ✅ | | | |
+| `mint` | | | | ✅ | | |
+| `burn` | | | | | ✅ | |
+| `rescueERC20` | | | | | | ✅ |
+
+### IBTCYHub
+
+| Function | DEFAULT_ADMIN | MANAGER_ADMIN | REQUESTER | PROCESSOR | PAUSER_ADMIN | RESCUER |
+|----------|:-------------:|:-------------:|:---------:|:---------:|:------------:|:-------:|
+| `grantRole` | ✅ | | | | | |
+| `recoverEscrowed` | ✅ | | | | | |
+| `setFees` | | ✅ | | | | |
+| `setOracle` | | ✅ | | | | |
+| `requestSubscription` | | | ✅ | | | |
+| `requestRedemption` | | | ✅ | | | |
+| `processSubscription` | | | | ✅ | | |
+| `processRedemption` | | | | ✅ | | |
+| `pauseSubscriptions` | | | | | ✅ | |
+| `rescueERC20` | | | | | | ✅ |
+
+## Checking Roles
+
+```solidity
+// Check if address has role
+bool hasAccess = ibtcy.hasRole(COMPLIANCE_ROLE, address);
+
+// Get role admin
+bytes32 admin = ibtcy.getRoleAdmin(COMPLIANCE_ROLE);
+
+// Get role member count
+uint256 count = ibtcy.getRoleMemberCount(COMPLIANCE_ROLE);
+```
+

@@ -1,0 +1,146 @@
+---
+title: "How It Works"
+description: "Understanding the BTCY two-token architecture"
+---
+
+# The Two-Token System
+
+BTCY uses a two-token architecture that separates **regulatory compliance** from **DeFi composability**.
+
+<Frame>
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        SYSTEM OVERVIEW                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   USER sends BTC ──► SYGNUM ──► HUB mints ──► USER gets iBTCY  │
+│                                                                 │
+│   iBTCY (institutional) ◄──► BTCY Vault ◄──► BTCY (DeFi)       │
+│                                                                 │
+│   iBTCY = regulated, KYC required, allowlist enforced          │
+│   BTCY  = DeFi wrapper, permissionless transfers               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+</Frame>
+
+## Token Comparison
+
+| Property | iBTCY | BTCY |
+|----------|-------|------|
+| **Purpose** | Institutional security token | DeFi wrapper |
+| **Standard** | ERC-20 + Permit | ERC-4626 Vault |
+| **Decimals** | 8 | 8 |
+| **Who can hold** | KYC'd investors only | Anyone with iBTCY |
+| **Transfers** | Allowlist + Blocklist | Blocklist only |
+| **Withdrawals** | Via IBTCYHub | Allowlist required |
+| **Exchange rate** | NAV-based (grows ~5% APY) | 1:1 with iBTCY |
+
+## The Flow
+
+### 1. Subscription (BTC → iBTCY)
+
+<Steps>
+  <Step title="Complete KYC">
+    User completes KYC with Aarc BVI SPV and gets allowlisted
+  </Step>
+  <Step title="Send BTC">
+    User sends BTC to Archax custody address (minimum $100,000)
+  </Step>
+  <Step title="Request Created">
+    Backend creates subscription request on IBTCYHub
+  </Step>
+  <Step title="Processing">
+    Once BTC is verified, backend processes the request
+  </Step>
+  <Step title="Receive iBTCY">
+    iBTCY minted to user at current NAV price
+  </Step>
+</Steps>
+
+### 2. Wrapping (iBTCY → BTCY)
+
+<Steps>
+  <Step title="Approve">
+    User approves BTCY vault to spend iBTCY
+  </Step>
+  <Step title="Deposit">
+    User calls `deposit()` on BTCY vault
+  </Step>
+  <Step title="Receive BTCY">
+    User receives BTCY tokens 1:1
+  </Step>
+</Steps>
+
+<Note>
+  **No KYC required for wrapping** - only blocklist is checked. Any iBTCY holder can wrap.
+</Note>
+
+### 3. Unwrapping (BTCY → iBTCY)
+
+<Steps>
+  <Step title="Verify Allowlist">
+    User must be on BTCY's allowlist to withdraw
+  </Step>
+  <Step title="Withdraw">
+    User calls `withdraw()` on BTCY vault
+  </Step>
+  <Step title="Receive iBTCY">
+    BTCY burned, iBTCY returned 1:1
+  </Step>
+</Steps>
+
+<Warning>
+  **Dual allowlist required**: To unwrap, user must be allowlisted on both BTCY AND iBTCY.
+</Warning>
+
+### 4. Redemption (iBTCY → BTC)
+
+<Steps>
+  <Step title="Request Redemption">
+    User calls `requestRedemption()` - iBTCY escrowed in Hub
+  </Step>
+  <Step title="Choose Path">
+    **Instant** (0.1% fee, T+0/T+1) or **Monthly** (0% fee, monthly dealing)
+  </Step>
+  <Step title="Processing">
+    Backend processes at current NAV, burns iBTCY
+  </Step>
+  <Step title="Receive BTC">
+    BTC sent to user off-chain
+  </Step>
+</Steps>
+
+## NAV Pricing
+
+The Net Asset Value (NAV) represents the value of 1 iBTCY in BTC.
+
+```
+NAV = Total Fund Assets / Total iBTCY Supply
+```
+
+- **Starting NAV**: 1.0 (1 iBTCY = 1 BTC)
+- **Expected Growth**: ~5% annually from yield strategies
+- **Oracle**: Chainlink feed updated regularly
+
+<Info>
+  When you mint, you receive `BTC Amount / NAV` iBTCY.
+  When you redeem, you receive `iBTCY Amount × NAV` BTC (minus fees).
+</Info>
+
+## Key Design Decisions
+
+### Why Two Tokens?
+
+1. **Regulatory Separation**: iBTCY can have strict compliance controls without affecting DeFi usability
+2. **DeFi Composability**: BTCY works like any ERC-20 in lending, DEXs, and other protocols
+3. **Flexibility**: Users choose their level of engagement (hold iBTCY vs. use BTCY in DeFi)
+
+### Why 8 Decimals?
+
+Matches Bitcoin's precision (1 BTC = 100,000,000 satoshis) for intuitive UX.
+
+### Why ERC-4626 for BTCY?
+
+Standard vault interface makes integration trivial for DeFi protocols.
+

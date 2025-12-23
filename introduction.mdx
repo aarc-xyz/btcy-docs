@@ -1,0 +1,79 @@
+---
+title: "Introduction"
+description: "BTCY: Institutional-grade Bitcoin yield, built for DeFi"
+---
+
+# Welcome to BTCY
+
+BTCY is an institutional two-token system that brings **regulated Bitcoin yield** to DeFi. Built by [Aarc](https://aarc.xyz), BTCY bridges the gap between traditional finance and decentralized protocols.
+
+<CardGroup cols={2}>
+  <Card title="iBTCY" icon="building-columns">
+    Institutional token backed by Sygnum's BTC yield fund. KYC required, NAV-based pricing.
+  </Card>
+  <Card title="BTCY" icon="coins">
+    DeFi wrapper (ERC-4626) for iBTCY. 1:1 backed, composable with any DeFi protocol.
+  </Card>
+</CardGroup>
+
+## Why BTCY?
+
+| Challenge | BTCY Solution |
+|-----------|---------------|
+| Bitcoin doesn't earn yield | Backed by Sygnum's actively managed BTC yield fund (~5% APY) |
+| Institutional products can't enter DeFi | Two-token system separates compliance from composability |
+| Regulatory uncertainty | Swiss AMC structure with BMA-licensed custody |
+| Complex onboarding | Simple wrap/unwrap between institutional and DeFi layers |
+
+## How It Works
+
+```
+USER sends BTC ──► SYGNUM ──► HUB mints ──► USER gets iBTCY
+                                                │
+                              ┌─────────────────┘
+                              ▼
+                    iBTCY ◄──► BTCY Vault ◄──► DeFi Protocols
+```
+
+1. **Mint iBTCY**: Send BTC to custody, receive iBTCY at NAV price
+2. **Wrap to BTCY**: Deposit iBTCY into vault, receive BTCY 1:1
+3. **Use in DeFi**: BTCY works like any ERC-20 (lending, DEX, collateral)
+4. **Unwrap & Redeem**: Convert back when you need BTC
+
+## Key Features
+
+<AccordionGroup>
+  <Accordion title="Institutional-Grade Custody">
+    Assets custodied by Sygnum Bank (Swiss-regulated) with Archax as execution partner.
+  </Accordion>
+  <Accordion title="NAV-Based Pricing">
+    iBTCY price reflects the Net Asset Value of the underlying fund, updated via Chainlink oracle.
+  </Accordion>
+  <Accordion title="Compliance Built-In">
+    Allowlist/blocklist controls at the iBTCY layer ensure regulatory compliance without limiting DeFi functionality.
+  </Accordion>
+  <Accordion title="Fully Audited">
+    Smart contracts audited by leading security firms. Open source and verifiable.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Links
+
+<CardGroup cols={3}>
+  <Card title="How It Works" icon="diagram-project" href="/how-it-works">
+    Understand the two-token architecture
+  </Card>
+  <Card title="Quick Start" icon="rocket" href="/quick-start">
+    Get started in 3 steps
+  </Card>
+  <Card title="Security" icon="shield-halved" href="/trust-security/security">
+    Learn about our security model
+  </Card>
+</CardGroup>
+
+## Get Support
+
+- **Discord**: [Join our community](https://discord.gg/aarc)
+- **Email**: support@aarc.xyz
+- **Twitter**: [@AarcHQ](https://x.com/AarcHQ)
+

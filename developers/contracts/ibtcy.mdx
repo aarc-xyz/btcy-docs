@@ -1,0 +1,162 @@
+---
+title: "iBTCY Contract"
+description: "Technical reference for the iBTCY token contract"
+---
+
+# iBTCY Contract
+
+The institutional Bitcoin yield token with compliance controls.
+
+## Overview
+
+| Property | Value |
+|----------|-------|
+| Standard | ERC-20 + ERC-2612 |
+| Decimals | 8 |
+| Upgradeability | UUPS |
+
+## State Variables
+
+```solidity
+// Compliance
+mapping(address => bool) private _allowlisted;
+mapping(address => bool) private _blocklisted;
+bool public allowlistEnabled;
+
+// Optional sanction oracle
+address public sanctionOracle;
+```
+
+## Functions
+
+### Allowlist Management
+
+```solidity
+function addToAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
+function removeFromAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
+function batchAddToAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
+function batchRemoveFromAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
+function setAllowlistEnabled(bool enabled) external onlyRole(COMPLIANCE_ROLE);
+function isAllowlisted(address account) public view returns (bool);
+```
+
+### Blocklist Management
+
+```solidity
+function addToBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
+function removeFromBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
+function batchAddToBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
+function batchRemoveFromBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
+function isBlocklisted(address account) public view returns (bool);
+function isFrozen(address account) external view returns (bool); // Alias
+```
+
+### Force Actions
+
+```solidity
+function forceTransfer(
+    address from,
+    address to,
+    uint256 amount,
+    string calldata legalReference
+) external onlyRole(COMPLIANCE_ROLE);
+
+function forceRedeem(
+    address from,
+    uint256 amount,
+    string calldata legalReference
+) external onlyRole(COMPLIANCE_ROLE);
+```
+
+**Requirements:**
+- `from` must be blocklisted
+- `to` must NOT be blocklisted (for transfer)
+- `to` must be allowlisted (for transfer)
+- `legalReference` cannot be empty
+
+### Minting & Burning
+
+```solidity
+function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE);
+function burn(address from, uint256 amount) external onlyRole(BURNER_ROLE);
+```
+
+### Rescue Functions
+
+```solidity
+function rescueERC20(address token, address to, uint256 amount) external onlyRole(RESCUER_ROLE);
+function rescueETH(address payable to, uint256 amount) external onlyRole(RESCUER_ROLE);
+```
+
+## Transfer Logic
+
+```solidity
+function _update(address from, address to, uint256 amount) internal override whenNotPaused {
+    // BLOCKLIST CHECKS FIRST (fail fast)
+    if (from != address(0)) {
+        require(!isBlocklisted(from), SenderBlocklisted());
+    }
+    if (to != address(0)) {
+        require(!isBlocklisted(to), RecipientBlocklisted());
+    }
+    
+    // ALLOWLIST CHECKS (skip for mint/burn)
+    if (from != address(0)) {
+        require(isAllowlisted(from), SenderNotAllowlisted());
+    }
+    if (to != address(0)) {
+        require(isAllowlisted(to), RecipientNotAllowlisted());
+    }
+    
+    // Check spender for transferFrom
+    address spender = _msgSender();
+    if (from != spender && to != spender && from != address(0) && to != address(0)) {
+        require(isAllowlisted(spender), SpenderNotAllowlisted());
+    }
+    
+    super._update(from, to, amount);
+}
+```
+
+## Events
+
+```solidity
+event Allowlisted(address indexed account);
+event RemovedFromAllowlist(address indexed account);
+event AllowlistEnabledChanged(bool enabled);
+event Blocklisted(address indexed account);
+event RemovedFromBlocklist(address indexed account);
+event ForcedTransfer(address indexed from, address indexed to, uint256 amount, string legalReference, address indexed executor);
+event ForcedRedemption(address indexed from, uint256 amount, string legalReference, address indexed executor);
+event TokensRescued(address indexed token, address indexed to, uint256 amount);
+event ETHRescued(address indexed to, uint256 amount);
+```
+
+## Custom Errors
+
+```solidity
+error SenderBlocklisted();
+error RecipientBlocklisted();
+error SpenderBlocklisted();
+error SenderNotAllowlisted();
+error RecipientNotAllowlisted();
+error SpenderNotAllowlisted();
+error BatchTooLarge();
+error LegalReferenceRequired();
+error ZeroAddress();
+```
+
+## Initialization
+
+```solidity
+function initialize(
+    string memory name_,           // "Institutional BTCY"
+    string memory symbol_,         // "iBTCY"
+    address defaultAdmin_,         // Cold 3/5 multisig
+    address complianceAdmin_,      // Ops 2/3 multisig
+    address pauser_,               // Ops 2/3 multisig
+    address upgrader_,             // Cold 3/5 multisig
+    address rescuer_               // Ops 2/3 multisig
+) external initializer;
+```
+

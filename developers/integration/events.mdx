@@ -1,0 +1,253 @@
+---
+title: "Events Reference"
+description: "Smart contract events for indexing and monitoring"
+---
+
+# Events Reference
+
+All events emitted by BTCY contracts for indexing and monitoring.
+
+## iBTCY Token Events
+
+### Standard ERC-20
+
+```solidity
+event Transfer(address indexed from, address indexed to, uint256 value);
+event Approval(address indexed owner, address indexed spender, uint256 value);
+```
+
+### Compliance
+
+```solidity
+event Allowlisted(address indexed account);
+event RemovedFromAllowlist(address indexed account);
+event AllowlistEnabledChanged(bool enabled);
+event Blocklisted(address indexed account);
+event RemovedFromBlocklist(address indexed account);
+event ForcedTransfer(
+    address indexed from,
+    address indexed to,
+    uint256 amount,
+    string legalReference,
+    address indexed executor
+);
+event ForcedRedemption(
+    address indexed from,
+    uint256 amount,
+    string legalReference,
+    address indexed executor
+);
+```
+
+### Emergency & Rescue
+
+```solidity
+event Paused(address indexed account, string scope);
+event Unpaused(address indexed account, string scope);
+event TokensRescued(address indexed token, address indexed to, uint256 amount);
+event ETHRescued(address indexed to, uint256 amount);
+```
+
+### Upgrades
+
+```solidity
+event UpgradeProposed(address indexed implementation, uint256 executeAfter, bool isEmergency);
+event UpgradeCancelled(address indexed implementation);
+```
+
+## IBTCYHub Events
+
+### Subscription
+
+```solidity
+event SubscriptionRequested(
+    bytes32 indexed id,
+    address indexed user,
+    uint256 amount
+);
+
+event SubscriptionProcessed(
+    bytes32 indexed id,
+    address indexed user,
+    uint256 amountMinted,
+    uint256 navPrice
+);
+
+event SubscriptionCancelled(
+    bytes32 indexed id,
+    address indexed user,
+    string reason
+);
+```
+
+### Redemption
+
+```solidity
+event RedemptionRequested(
+    bytes32 indexed id,
+    address indexed user,
+    uint256 amount,
+    bool isInstant
+);
+
+event RedemptionProcessed(
+    bytes32 indexed id,
+    address indexed user,
+    uint256 amountBurned,
+    uint256 feeAmount,
+    uint256 navPrice
+);
+
+event RedemptionCancelled(
+    bytes32 indexed id,
+    address indexed user
+);
+```
+
+### Configuration
+
+```solidity
+event FeeUpdated(string feeType, uint256 oldBps, uint256 newBps);
+event MinimumUpdated(uint256 oldAmount, uint256 newAmount);
+event OracleUpdated(address indexed oldOracle, address indexed newOracle);
+event PriceBoundsUpdated(uint256 minPrice, uint256 maxPrice);
+event PriceDeviationUpdated(uint256 oldBps, uint256 newBps);
+event PriceValidated(uint256 price, uint256 lastPrice);
+event OracleStalenessUpdated(uint256 warningAge, uint256 blockAge);
+event CircuitBreakerUpdated(uint256 mintBps, uint256 redeemBps);
+```
+
+### Monitoring
+
+```solidity
+event LargeOperation(
+    string operationType,
+    address indexed user,
+    uint256 amount,
+    uint256 percentOfSupply
+);
+
+event CircuitBreakerTriggered(
+    uint256 amount,
+    uint256 threshold,
+    bool isRedeem
+);
+
+event OracleStaleWarning(uint256 age);
+```
+
+### Escrow
+
+```solidity
+event EscrowRecovered(
+    bytes32 indexed requestId,
+    address indexed from,
+    address indexed to,
+    uint256 amount,
+    string legalReference
+);
+
+event ComplianceTreasuryUpdated(
+    address indexed oldTreasury,
+    address indexed newTreasury
+);
+```
+
+## BTCY Vault Events
+
+### ERC-4626 Standard
+
+```solidity
+event Deposit(
+    address indexed sender,
+    address indexed owner,
+    uint256 assets,
+    uint256 shares
+);
+
+event Withdraw(
+    address indexed sender,
+    address indexed receiver,
+    address indexed owner,
+    uint256 assets,
+    uint256 shares
+);
+```
+
+### Compliance
+
+```solidity
+event Blocklisted(address indexed account);
+event RemovedFromBlocklist(address indexed account);
+event AddressAllowlisted(address indexed account);
+event AddressRemovedFromAllowlist(address indexed account);
+event AllowlistEnabledChanged(bool enabled);
+```
+
+### Configuration
+
+```solidity
+event FeeUpdated(string feeType, uint256 oldBps, uint256 newBps);
+```
+
+## Indexing Recommendations
+
+### Key Events to Monitor
+
+| Event | Importance | Use Case |
+|-------|------------|----------|
+| `SubscriptionRequested` | High | Track new mint requests |
+| `SubscriptionProcessed` | High | Confirm mint completion |
+| `RedemptionRequested` | High | Track redemption queue |
+| `Blocklisted` | Critical | Compliance monitoring |
+| `CircuitBreakerTriggered` | Critical | Emergency alerts |
+| `LargeOperation` | Medium | Whale monitoring |
+
+### Example Subgraph Schema
+
+```graphql
+type Subscription @entity {
+  id: Bytes!
+  user: Bytes!
+  amount: BigInt!
+  amountProcessed: BigInt!
+  status: String!
+  requestedAt: BigInt!
+  processedAt: BigInt
+  navPrice: BigInt
+}
+
+type Redemption @entity {
+  id: Bytes!
+  user: Bytes!
+  amount: BigInt!
+  amountProcessed: BigInt!
+  isInstant: Boolean!
+  status: String!
+  requestedAt: BigInt!
+  processedAt: BigInt
+  fee: BigInt
+}
+
+type ComplianceAction @entity {
+  id: ID!
+  type: String!
+  account: Bytes!
+  executor: Bytes!
+  timestamp: BigInt!
+  legalReference: String
+}
+```
+
+## Monitoring Alerts
+
+Recommended alerts for operations:
+
+| Alert | Trigger | Priority |
+|-------|---------|----------|
+| Circuit Breaker | `CircuitBreakerTriggered` | P0 (Critical) |
+| Oracle Stale | `OracleStaleWarning` | P1 (High) |
+| Large Operation | `LargeOperation` > 5% | P2 (Medium) |
+| Blocklist Addition | `Blocklisted` | P2 (Medium) |
+| Force Action | `ForcedTransfer` / `ForcedRedemption` | P1 (High) |
+

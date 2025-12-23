@@ -1,0 +1,171 @@
+---
+title: "Risk Factors"
+description: "Understanding the risks of investing in BTCY"
+---
+
+# Risk Factors
+
+<Warning>
+  Investing in BTCY involves risks. Please read this section carefully before participating.
+</Warning>
+
+## Smart Contract Risk
+
+BTCY relies on smart contracts for token management and operations.
+
+**Risks include:**
+- Bugs or vulnerabilities in contract code
+- Unexpected behavior in edge cases
+- Upgrade mechanism exploitation
+
+**Mitigations:**
+- Multiple independent audits
+- Timelocked upgrades (48h normal, 12h emergency)
+- Circuit breakers for large operations
+- Formal verification of critical paths
+
+## Custodial Risk
+
+BTC backing iBTCY is held by third-party custodians.
+
+**Risks include:**
+- Custodian insolvency
+- Unauthorized access to funds
+- Operational failures
+
+**Mitigations:**
+- Sygnum Bank (Swiss-regulated) as primary custodian
+- Segregated accounts
+- Insurance coverage
+- Regular attestations
+
+## Oracle Risk
+
+NAV pricing depends on Chainlink oracle feeds.
+
+**Risks include:**
+- Oracle manipulation
+- Stale or incorrect prices
+- Oracle downtime
+
+**Mitigations:**
+- Multiple Chainlink safety checks
+- Price bounds (0.5-2.0 BTC range)
+- Maximum 5% deviation per update
+- Staleness handling (24h warning, 48h block)
+
+## Market Risk
+
+**Risks include:**
+- BTC price volatility
+- NAV fluctuations
+- Liquidity constraints during market stress
+
+**Mitigations:**
+- Sleeve reserve (~32% liquid)
+- Instant + monthly redemption paths
+- No leverage in underlying strategy
+
+## Regulatory Risk
+
+**Risks include:**
+- Changes in regulatory frameworks
+- Increased compliance requirements
+- Jurisdiction-specific restrictions
+
+**Mitigations:**
+- Swiss AMC structure
+- Licensed custodians (FINMA, BMA)
+- Proactive compliance monitoring
+- Allowlist/blocklist controls
+
+## Liquidity Risk
+
+**Risks include:**
+- Insufficient sleeve for instant redemptions
+- Monthly dealing delays
+- DeFi liquidity constraints for BTCY
+
+**Mitigations:**
+- ~32% AUM in liquid sleeve
+- Partial processing capability
+- Multiple redemption paths
+
+## Counterparty Risk
+
+**Risks include:**
+- Sygnum fund performance
+- Archax execution issues
+- Third-party service failures
+
+**Mitigations:**
+- Established institutional partners
+- Diversified service providers
+- Operational redundancy
+
+## Execution Risk
+
+**Risks include:**
+- Transaction delays
+- Network congestion
+- Failed transactions
+
+**Mitigations:**
+- Ethereum mainnet reliability
+- Gas fee estimation
+- Retry mechanisms in backend
+
+## Operational Risk
+
+**Risks include:**
+- Key management failures
+- Multisig coordination issues
+- Backend system downtime
+
+**Mitigations:**
+- Cold 3/5 multisig for critical operations
+- Ops 2/3 multisig for daily operations
+- Redundant infrastructure
+
+## Blocklist/Freeze Risk
+
+**Risks include:**
+- Legitimate users incorrectly blocklisted
+- Tokens frozen without recourse
+
+**Mitigations:**
+- Clear compliance procedures
+- Appeals process
+- Force functions require blocklist first (audit trail)
+
+## Technology Risk
+
+**Risks include:**
+- Ethereum network failures
+- Hard fork complications
+- Upgradeability issues
+
+**Mitigations:**
+- Battle-tested Ethereum infrastructure
+- Conservative upgrade practices
+- Emergency pause capabilities
+
+---
+
+<Note>
+  This is not an exhaustive list of risks. The full risk disclosure is available in the prospectus documents.
+</Note>
+
+## Risk Acknowledgment
+
+By participating in BTCY, you acknowledge:
+
+1. You understand the risks described above
+2. You are investing only what you can afford to lose
+3. You have conducted your own due diligence
+4. You meet the eligibility requirements
+
+<Card title="View Legal Documents" icon="file-contract" href="/legal/terms">
+  Read the full Terms of Service
+</Card>
+

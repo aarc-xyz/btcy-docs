@@ -1,0 +1,129 @@
+---
+title: "Wrapping iBTCY"
+description: "How to wrap iBTCY into BTCY for DeFi use"
+---
+
+# Wrapping iBTCY → BTCY
+
+Deposit iBTCY into the BTCY vault to receive BTCY tokens for DeFi.
+
+## Prerequisites
+
+<Check>
+  - Hold iBTCY in your wallet
+  - Not blocklisted on iBTCY or BTCY
+  - Wallet connected
+</Check>
+
+<Info>
+  **No allowlist required** for wrapping. Any iBTCY holder can wrap.
+</Info>
+
+## How to Wrap
+
+<Steps>
+  <Step title="Approve the Vault">
+    Allow BTCY vault to spend your iBTCY:
+    
+    ```solidity
+    ibtcy.approve(btcyVaultAddress, amount);
+    ```
+  </Step>
+  
+  <Step title="Deposit (Wrap)">
+    Call deposit on the BTCY vault:
+    
+    ```solidity
+    uint256 shares = btcyVault.deposit(amount, receiverAddress);
+    ```
+  </Step>
+  
+  <Step title="Receive BTCY">
+    BTCY tokens minted 1:1 to the receiver address
+  </Step>
+</Steps>
+
+## Code Example
+
+```solidity
+// Full wrapping example
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+
+contract WrapExample {
+    IERC20 public ibtcy;
+    IERC4626 public btcyVault;
+    
+    function wrap(uint256 amount) external {
+        // 1. Transfer iBTCY from user
+        ibtcy.transferFrom(msg.sender, address(this), amount);
+        
+        // 2. Approve vault
+        ibtcy.approve(address(btcyVault), amount);
+        
+        // 3. Deposit and receive BTCY
+        uint256 btcyReceived = btcyVault.deposit(amount, msg.sender);
+        
+        // btcyReceived == amount (1:1 ratio)
+    }
+}
+```
+
+## ERC-4626 Interface
+
+BTCY implements the standard ERC-4626 vault interface:
+
+```solidity
+// Preview how much BTCY you'll receive
+uint256 shares = btcyVault.previewDeposit(assets);
+
+// Check maximum you can deposit
+uint256 maxDeposit = btcyVault.maxDeposit(receiver);
+
+// Deposit assets, receive shares
+uint256 shares = btcyVault.deposit(assets, receiver);
+
+// Alternative: specify shares wanted
+uint256 assets = btcyVault.mint(shares, receiver);
+```
+
+## Exchange Rate
+
+The exchange rate is always **1:1**:
+
+```solidity
+btcyVault.convertToShares(100e8); // Returns 100e8
+btcyVault.convertToAssets(100e8); // Returns 100e8
+```
+
+<Note>
+  Unlike typical yield vaults, BTCY maintains a fixed 1:1 ratio. No price appreciation or depreciation occurs in the vault itself.
+</Note>
+
+## Access Control
+
+| Check | Requirement |
+|-------|-------------|
+| Caller | Not blocklisted |
+| Receiver | Not blocklisted |
+| Allowlist | **Not required** |
+
+## Fees
+
+| Fee | Rate |
+|-----|------|
+| Wrap fee | 0% |
+
+## What's Next?
+
+After wrapping, you can use BTCY in any DeFi protocol:
+
+<CardGroup cols={2}>
+  <Card title="Use in DeFi" icon="chart-line" href="/developers/integration/defi-protocols">
+    See integration examples
+  </Card>
+  <Card title="Unwrap Later" icon="arrow-left" href="/btcy/unwrapping">
+    Learn how to unwrap when needed
+  </Card>
+</CardGroup>
+

@@ -1,104 +1,62 @@
 ---
 title: "iBTCY Overview"
-description: "The institutional Bitcoin yield token"
+sidebarTitle: "Overview"
+description: "The institutional token backed by Sygnum's BTC yield fund."
 ---
 
-# iBTCY Token
+## What is iBTCY?
 
-iBTCY (Institutional BTCY) is a **regulated security token** representing ownership in a Swiss Actively Managed Certificate (AMC) that generates yield on Bitcoin.
+**iBTCY** is a NAV-based security token representing ownership in Sygnum Bank's actively managed BTC yield fund.
+
+Each iBTCY token represents a proportional claim on the fund's assets. The token price reflects the Net Asset Value (NAV) of the underlying fund, not market trading.
+
+---
 
 ## Key Properties
 
-| Property | Value |
-|----------|-------|
-| **Standard** | ERC-20 + ERC-2612 Permit |
-| **Decimals** | 8 (matches Bitcoin) |
-| **Transfer Rules** | Allowlist + Blocklist |
-| **Pricing** | NAV-based (grows ~5% APY) |
+| Property | Detail |
+|----------|--------|
+| **Token Type** | ERC-20 (with transfer restrictions) |
+| **Pricing** | NAV-based, updated daily |
+| **Backing** | Sygnum BTC yield fund |
+| **Target Yield** | 5-6% APY |
+| **Transferability** | Restricted to allowlisted addresses |
+| **Eligibility** | Qualified investors only |
 
-## How It Works
+---
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         iBTCY SYSTEM                                │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌─────────────┐        ┌─────────────┐        ┌─────────────┐     │
-│  │   User      │        │  IBTCYHub   │        │   Backend   │     │
-│  │             │        │  (Escrow)   │        │ (Processor) │     │
-│  └──────┬──────┘        └──────┬──────┘        └──────┬──────┘     │
-│         │                      │                      │             │
-│         │  1. KYC + BTC        │                      │             │
-│         │─────────────────────►│                      │             │
-│         │                      │  2. requestSub()    │             │
-│         │                      │◄─────────────────────│             │
-│         │                      │                      │             │
-│         │                      │  3. processSub()    │             │
-│         │                      │◄─────────────────────│             │
-│         │  4. iBTCY minted     │                      │             │
-│         │◄─────────────────────│                      │             │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
+## Legal Structure
 
-## NAV-Based Pricing
+iBTCY is structured as a **Swiss Actively Managed Certificate (AMC)**:
 
-The Net Asset Value (NAV) represents the value of 1 iBTCY in BTC:
+- Issued under Swiss law
+- Regulated fund structure
+- Clear investor protections
+- Institutional-grade compliance
 
-- **Starting NAV**: 1.0 (1 iBTCY = 1 BTC)
-- **Growth**: ~5% annually from yield strategies
-- **Example**: At NAV 1.05, 100 BTC mints ~95.24 iBTCY
+---
+
+## How NAV Pricing Works
+
+Unlike market-traded tokens, iBTCY price is determined by the underlying fund's NAV:
+
+1. **Daily calculation** — NAV is calculated based on fund assets
+2. **Oracle update** — Price is published on-chain via Chainlink
+3. **Mint/redeem pricing** — All operations use the current NAV
 
 <Info>
-  NAV is updated via Chainlink oracle with multiple safety checks to prevent manipulation.
+This means iBTCY price reflects actual fund performance, not market speculation.
 </Info>
 
-## Transfer Restrictions
-
-iBTCY uses dual compliance controls:
-
-### Blocklist (Checked First)
-- Prevents sanctioned/flagged addresses from transacting
-- Applied to sender AND receiver
-- Fail-fast pattern for gas efficiency
-
-### Allowlist
-- Only KYC'd addresses can hold iBTCY
-- Required for sender, receiver, AND spender (in transferFrom)
-- Can be globally disabled by admin if needed
-
-## Force Capabilities
-
-For compliance/legal requirements, authorized roles can:
-
-| Function | Requirement | Use Case |
-|----------|-------------|----------|
-| `forceTransfer()` | User must be blocklisted first | Court orders, estate claims |
-| `forceRedeem()` | User must be blocklisted first | Sanctions compliance |
-
-<Warning>
-  Force actions require the target address to be blocklisted first, creating a clear audit trail.
-</Warning>
-
-## Use Cases
-
-<CardGroup cols={2}>
-  <Card title="Hold for Yield" icon="piggy-bank">
-    Simply hold iBTCY to earn ~5% APY as NAV appreciates
-  </Card>
-  <Card title="Wrap for DeFi" icon="shuffle">
-    Wrap into BTCY to use in lending, DEXs, and other protocols
-  </Card>
-</CardGroup>
+---
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Check Eligibility" icon="user-check" href="/ibtcy/eligibility">
-    See if you qualify to hold iBTCY
+  <Card title="Eligibility" icon="user-check" href="/ibtcy/eligibility">
+    Who can invest in iBTCY
   </Card>
-  <Card title="Mint iBTCY" icon="coins" href="/ibtcy/minting">
-    Learn how to mint from BTC
+  <Card title="Minting" icon="plus" href="/ibtcy/minting">
+    How to mint iBTCY
   </Card>
 </CardGroup>
-

@@ -1,103 +1,65 @@
 ---
-title: "Security Model"
-description: "How BTCY protects your assets"
+title: "Security"
+description: "Enterprise-grade security for smart contracts and operations."
 ---
-
-# Security Model
-
-BTCY is built with institutional-grade security at every layer.
 
 ## Smart Contract Security
 
-### Access Control
+BTCY smart contracts are designed with security as the primary consideration.
 
-All contracts use role-based access control with multiple signers:
+<CardGroup cols={2}>
+  <Card title="Audited" icon="magnifying-glass">
+    Independent security audits by leading firms. See [Audits](/trust-security/audits).
+  </Card>
+  <Card title="Upgradeable" icon="arrows-rotate">
+    UUPS proxy pattern with timelocked upgrades. No instant changes.
+  </Card>
+  <Card title="Access Control" icon="key">
+    Role-based permissions. No single point of failure.
+  </Card>
+  <Card title="Pausable" icon="pause">
+    Emergency pause capability for all critical operations.
+  </Card>
+</CardGroup>
 
-| Role | Holder | Purpose |
-|------|--------|---------|
-| `DEFAULT_ADMIN` | Cold 3/5 multisig | Role management, upgrades |
-| `UPGRADER` | Cold 3/5 multisig | Propose contract upgrades |
-| `COMPLIANCE` | Ops 2/3 multisig | Allowlist/blocklist management |
-| `PROCESSOR` | Ops 2/3 multisig | Process mint/redeem requests |
-| `PAUSER` | Any admin (1/N) | Emergency pause |
+---
 
-### Timelocks
+## Access Control
 
-Contract upgrades are protected by timelocks:
+All privileged operations require specific roles:
 
-- **Normal upgrades**: 48-hour delay
-- **Emergency upgrades**: 12-hour delay
+| Role | Capability |
+|------|------------|
+| **Admin** | Manage roles, upgrade contracts (timelocked) |
+| **Compliance** | Manage allowlist/blocklist |
+| **Pauser** | Emergency pause operations |
+| **Processor** | Process mint/redeem requests |
 
 <Info>
-  During the timelock period, `DEFAULT_ADMIN` can cancel a proposed upgrade if issues are discovered.
+No single role can perform all operations. Critical actions require multiple roles or timelocks.
 </Info>
 
-### Circuit Breakers
+---
 
-Automatic protection against large, potentially malicious operations:
+## Operational Security
 
-| Trigger | Threshold | Action |
-|---------|-----------|--------|
-| Large mint | > 50% of supply | Auto-pause |
-| Large redeem | > 40% of supply | Auto-pause |
-| Single operation | > 10% of supply | Revert (no pause) |
+- **Multi-signature wallets** for all admin operations
+- **Timelocked upgrades** — changes are announced before execution
+- **Oracle validation** — price data is validated for staleness and bounds
+- **Circuit breakers** — automatic pauses on unusual activity
 
-### Reentrancy Protection
-
-All state-changing functions use OpenZeppelin's `ReentrancyGuard`.
+---
 
 ## Oracle Security
 
-NAV pricing uses Chainlink oracles with multiple safety checks:
+NAV pricing relies on Chainlink oracles with multiple safeguards:
 
-```solidity
-require(answer > 0, "Price is zero");
-require(updatedAt > 0, "Round incomplete");
-require(answeredInRound >= roundId, "Stale round");
-require(block.timestamp - updatedAt < 48 hours, "Oracle stale");
-```
+- **Staleness checks** — stale data is rejected
+- **Price bounds** — extreme values are flagged
+- **Fallback mechanisms** — graceful degradation if oracles fail
 
-### Staleness Handling
+---
 
-| Oracle Age | Behavior |
-|------------|----------|
-| < 24 hours | ✅ Use new price |
-| 24-48 hours | ⚠️ Use last valid price, emit warning |
-| > 48 hours | ❌ Block all operations |
-
-### Price Bounds
-
-- **Minimum NAV**: 0.5 BTC (hardcoded floor)
-- **Maximum deviation**: 5% per update
-
-## Compliance Controls
-
-### Blocklist
-- Checked **first** on all operations (fail fast)
-- Blocklisted addresses cannot send, receive, or interact
-
-### Allowlist
-- Required for iBTCY transfers
-- Required for BTCY withdrawals (unwrap)
-
-## Emergency Procedures
-
-### Pause Capabilities
-
-| Contract | Pause Scope |
-|----------|-------------|
-| iBTCY | All transfers |
-| IBTCYHub | Subscriptions, Redemptions, Processing (granular) |
-| BTCY Vault | Deposits, Withdrawals |
-
-<Warning>
-  **Cancel functions always work**, even when paused. Users can always cancel pending redemptions within the grace period.
-</Warning>
-
-## Best Practices
-
-1. **Use hardware wallets** for holding iBTCY/BTCY
-2. **Verify contract addresses** before interacting
-3. **Monitor events** for large operations via our dashboard
-4. **Report issues** to security@aarc.xyz
-
+<Card title="View Audits" icon="file-shield" href="/trust-security/audits">
+  See our audit reports and security assessments.
+</Card>

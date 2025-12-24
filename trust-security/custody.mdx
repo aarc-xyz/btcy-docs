@@ -1,73 +1,59 @@
 ---
-title: "Custody & Reserves"
-description: "How BTCY assets are custodied and managed"
+title: "Custody"
+description: "Bank-grade custody with Sygnum Bank."
 ---
 
-# Custody & Reserves
+## Sygnum Bank
 
-BTCY is backed by real Bitcoin held in institutional custody.
+All underlying assets are held by **Sygnum Bank**, a Swiss digital asset bank regulated by FINMA (Swiss Financial Market Supervisory Authority).
 
-## Custody Partners
+<CardGroup cols={2}>
+  <Card title="FINMA Regulated" icon="shield-check">
+    Full banking license under Swiss law. Subject to ongoing regulatory supervision.
+  </Card>
+  <Card title="Segregated Assets" icon="vault">
+    Client assets are held separately from bank assets. Protected in case of insolvency.
+  </Card>
+</CardGroup>
 
-### Sygnum Bank
+---
 
-- **Type**: Swiss-regulated bank
-- **License**: FINMA banking license
-- **Role**: Custodian for the underlying BTC yield fund
+## About Sygnum
 
-### Archax
+| Detail | |
+|--------|---|
+| **Headquarters** | Zurich, Switzerland |
+| **License** | FINMA Banking License |
+| **Founded** | 2018 |
+| **Specialization** | Digital asset banking and custody |
 
-- **Type**: UK FCA-regulated exchange
-- **Role**: Execution and custody partner
+Sygnum is one of the world's first regulated digital asset banks. They provide institutional-grade custody, trading, and asset management services.
 
-## Reserve Structure
+<Card title="Learn More" icon="arrow-up-right-from-square" href="https://www.sygnum.com">
+  Visit Sygnum's website
+</Card>
 
-The underlying fund maintains reserves in two components:
+---
 
-| Component | Allocation | Purpose |
-|-----------|------------|---------|
-| **Sleeve** | ~32% of AUM | Liquid BTC for instant redemptions |
-| **Yield Strategies** | ~68% of AUM | Generating ~5% APY |
+## Custody Model
 
-<Info>
-  The sleeve ensures users can redeem instantly (T+0/T+1) without waiting for monthly dealing windows.
-</Info>
+1. **BTC deposits** are sent directly to Sygnum's custody infrastructure
+2. **Cold storage** is used for the majority of assets
+3. **Multi-signature** controls prevent unauthorized access
+4. **Insurance** coverage for custodied assets
 
-## NAV Calculation
+---
 
-Net Asset Value is calculated as:
+## Execution Partner
 
-```
-NAV = Total Fund Assets (in BTC) / Total iBTCY Supply
-```
+For certain operations, **Archax** serves as the execution partner:
 
-- Updated via Chainlink oracle
-- Reflects yield accumulation over time
-- Starting NAV: 1.0 BTC per iBTCY
+- UK FCA-regulated digital securities exchange
+- Institutional-grade trading infrastructure
+- Compliant execution for tokenized securities
 
-## Transparency
-
-### On-Chain Verification
-
-- Total iBTCY supply is publicly visible
-- BTCY vault holdings are on-chain
-- All transactions are traceable
-
-### Attestations
-
-*Coming Soon*
-
-Regular third-party attestations of reserves will be published.
-
-## Legal Structure
-
-| Entity | Role |
-|--------|------|
-| Aarc BVI SPV | Token issuer |
-| Sygnum Fund | Underlying yield fund (Swiss AMC) |
-| Archax | Custody & execution |
+---
 
 <Note>
-  iBTCY is structured as a Swiss Actively Managed Certificate (AMC), providing clear legal ownership rights.
+BTCY does not take custody of any assets. All Bitcoin is held by Sygnum Bank.
 </Note>
-

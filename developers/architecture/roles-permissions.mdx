@@ -1,149 +1,117 @@
 ---
 title: "Roles & Permissions"
-description: "Access control system for BTCY contracts"
+description: "Role-based access control in BTCY contracts."
 ---
 
-# Roles & Permissions
+## Overview
 
-BTCY uses OpenZeppelin's AccessControl with custom role definitions.
+BTCY uses **role-based access control** to separate privileges and prevent single points of failure.
 
-## Role Overview
+---
 
-### iBTCY Token Roles
+## Roles
 
-| Role | Holder | Permissions |
-|------|--------|-------------|
-| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Grant/revoke roles, cancel upgrades |
-| `MINTER_ROLE` | Hub contract | `mint()` |
-| `BURNER_ROLE` | Hub contract | `burn()` |
-| `COMPLIANCE_ROLE` | Ops 2/3 multisig | Allowlist/blocklist, force actions |
-| `PAUSER_ROLE` | Any admin (1/N) | `pause()`, `unpause()` |
-| `UPGRADER_ROLE` | Cold 3/5 multisig | `proposeUpgrade()` |
-| `RESCUER_ROLE` | Ops 2/3 multisig | `rescueERC20()`, `rescueETH()` |
+| Role | Purpose |
+|------|---------|
+| `DEFAULT_ADMIN_ROLE` | Manage other roles, critical admin functions |
+| `COMPLIANCE_ROLE` | Manage allowlist and blocklist |
+| `PAUSER_ROLE` | Pause/unpause contract operations |
+| `UPGRADER_ROLE` | Upgrade contract implementations |
+| `MANAGER_ADMIN_ROLE` | Configure operational parameters |
+| `REQUESTER_ROLE` | Submit mint/redeem requests |
+| `PROCESSOR_ROLE` | Process mint/redeem requests |
+| `RESCUER_ROLE` | Rescue stuck tokens |
 
-### IBTCYHub Roles
+---
 
-| Role | Holder | Permissions |
-|------|--------|-------------|
-| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Role management, escrow recovery |
-| `MANAGER_ADMIN_ROLE` | Ops 2/3 multisig | Configure fees, limits, oracles |
-| `REQUESTER_ROLE` | Backend hot wallet | Create requests on behalf of users |
-| `PROCESSOR_ROLE` | Ops 2/3 multisig | Process requests with NAV |
-| `PAUSER_ADMIN_ROLE` | Any admin (1/N) | Granular pause controls |
-| `UPGRADER_ROLE` | Cold 3/5 multisig | Propose upgrades |
-| `RESCUER_ROLE` | Ops 2/3 multisig | Rescue stuck tokens |
+## Role Hierarchy
 
-### BTCY Vault Roles
-
-| Role | Holder | Permissions |
-|------|--------|-------------|
-| `DEFAULT_ADMIN_ROLE` | Cold 3/5 multisig | Role management |
-| `COMPLIANCE_ROLE` | Ops 2/3 multisig | Allowlist/blocklist |
-| `PAUSER_ROLE` | Any admin (1/N) | `pause()`, `unpause()` |
-| `UPGRADER_ROLE` | Cold 3/5 multisig | Propose upgrades |
-| `RESCUER_ROLE` | Ops 2/3 multisig | Rescue stuck tokens |
-
-## Multisig Types
-
-### Cold Multisig (3/5)
-
-**High-security operations:**
-- Role management
-- Upgrade proposals
-- Upgrade cancellation
-- Escrowed token recovery
-
-**Characteristics:**
-- 3 of 5 signers required
-- Keys stored in cold storage
-- Intended for rare operations
-
-### Ops Multisig (2/3)
-
-**Day-to-day operations:**
-- Processing requests
-- Compliance actions
-- Fee/limit configuration
-- Token rescue
-
-**Characteristics:**
-- 2 of 3 signers required
-- More accessible keys
-- Daily operational use
-
-## Role Protection
-
-### Two-Step Transfer
-
-Critical roles (`DEFAULT_ADMIN_ROLE`, `UPGRADER_ROLE`) use two-step transfer:
-
-```solidity
-// Step 1: Propose new holder
-beginRoleTransfer(role, newHolder);
-
-// Step 2: New holder accepts
-acceptRoleTransfer(role); // Called by newHolder
+```
+DEFAULT_ADMIN_ROLE
+├── COMPLIANCE_ROLE
+├── PAUSER_ROLE
+├── UPGRADER_ROLE (timelocked)
+├── MANAGER_ADMIN_ROLE
+│   ├── REQUESTER_ROLE
+│   └── PROCESSOR_ROLE
+└── RESCUER_ROLE
 ```
 
-### Cannot Renounce Admin
+---
 
-```solidity
-function renounceRole(bytes32 role, address account) public override {
-    require(role != DEFAULT_ADMIN_ROLE, "Cannot renounce admin");
-    super.renounceRole(role, account);
-}
-```
+## Role Details
 
-### PAUSER Can Unpause
+### DEFAULT_ADMIN_ROLE
 
-Unlike some implementations, the `PAUSER_ROLE` can both pause AND unpause:
+The most privileged role. Can:
+- Grant and revoke all other roles
+- Held by a **multisig wallet**
+- Should be used sparingly
 
-```solidity
-function pause() external onlyRole(PAUSER_ROLE);
-function unpause() external onlyRole(PAUSER_ROLE);
-```
+### COMPLIANCE_ROLE
 
-## Permission Matrix
+Manages address restrictions:
+- Add/remove from allowlist
+- Add/remove from blocklist
+- Critical for regulatory compliance
 
-### iBTCY Token
+### PAUSER_ROLE
 
-| Function | DEFAULT_ADMIN | COMPLIANCE | PAUSER | MINTER | BURNER | RESCUER |
-|----------|:-------------:|:----------:|:------:|:------:|:------:|:-------:|
-| `grantRole` | ✅ | | | | | |
-| `addToAllowlist` | | ✅ | | | | |
-| `addToBlocklist` | | ✅ | | | | |
-| `forceTransfer` | | ✅ | | | | |
-| `forceRedeem` | | ✅ | | | | |
-| `pause` | | | ✅ | | | |
-| `mint` | | | | ✅ | | |
-| `burn` | | | | | ✅ | |
-| `rescueERC20` | | | | | | ✅ |
+Emergency control:
+- Pause all operations
+- Held by multiple parties for redundancy
+- Unpause requires same role
 
-### IBTCYHub
+### UPGRADER_ROLE
 
-| Function | DEFAULT_ADMIN | MANAGER_ADMIN | REQUESTER | PROCESSOR | PAUSER_ADMIN | RESCUER |
-|----------|:-------------:|:-------------:|:---------:|:---------:|:------------:|:-------:|
-| `grantRole` | ✅ | | | | | |
-| `recoverEscrowed` | ✅ | | | | | |
-| `setFees` | | ✅ | | | | |
-| `setOracle` | | ✅ | | | | |
-| `requestSubscription` | | | ✅ | | | |
-| `requestRedemption` | | | ✅ | | | |
-| `processSubscription` | | | | ✅ | | |
-| `processRedemption` | | | | ✅ | | |
-| `pauseSubscriptions` | | | | | ✅ | |
-| `rescueERC20` | | | | | | ✅ |
+Contract upgrades:
+- Propose new implementations
+- All upgrades go through **timelock**
+- Changes announced on-chain
+
+### PROCESSOR_ROLE
+
+Operational role:
+- Process pending mint requests
+- Process pending redeem requests
+- Called after off-chain settlement confirmed
+
+---
+
+## Security Principles
+
+<CardGroup cols={2}>
+  <Card title="Separation of Duties" icon="users">
+    No single role can perform all operations
+  </Card>
+  <Card title="Multisig Required" icon="signature">
+    Admin roles held by multisig wallets
+  </Card>
+  <Card title="Timelocked Upgrades" icon="clock">
+    No instant contract changes
+  </Card>
+  <Card title="Emergency Pause" icon="pause">
+    Multiple parties can pause
+  </Card>
+</CardGroup>
+
+---
 
 ## Checking Roles
 
 ```solidity
 // Check if address has role
-bool hasAccess = ibtcy.hasRole(COMPLIANCE_ROLE, address);
+bool hasRole = contract.hasRole(COMPLIANCE_ROLE, address);
 
-// Get role admin
-bytes32 admin = ibtcy.getRoleAdmin(COMPLIANCE_ROLE);
+// Grant role (admin only)
+contract.grantRole(COMPLIANCE_ROLE, address);
 
-// Get role member count
-uint256 count = ibtcy.getRoleMemberCount(COMPLIANCE_ROLE);
+// Revoke role (admin only)  
+contract.revokeRole(COMPLIANCE_ROLE, address);
 ```
 
+---
+
+<Card title="Contract Reference" icon="file-code" href="/developers/contracts/ibtcy">
+  See contract documentation
+</Card>

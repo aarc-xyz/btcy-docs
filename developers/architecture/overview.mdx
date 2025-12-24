@@ -1,141 +1,117 @@
 ---
 title: "Architecture Overview"
-description: "Technical architecture of the BTCY system"
+sidebarTitle: "Overview"
+description: "Technical architecture of the BTCY system."
 ---
 
-# Architecture Overview
+## System Components
 
-BTCY consists of three core contracts plus supporting infrastructure.
+BTCY consists of four main smart contracts:
 
-## System Diagram
+<img
+  className="hidden dark:block rounded-lg my-6"
+  src="/images/contracts-dark.svg"
+  alt="Contract Architecture"
+/>
+<img
+  className="block dark:hidden rounded-lg my-6"
+  src="/images/contracts-light.svg"
+  alt="Contract Architecture"
+/>
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BTCY ARCHITECTURE                         │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│                      ┌─────────────────┐                        │
-│                      │   Chainlink     │                        │
-│                      │   Oracles       │                        │
-│                      └────────┬────────┘                        │
-│                               │                                 │
-│                               │ NAV + BTC/USD                   │
-│                               ▼                                 │
-│  ┌─────────────┐       ┌─────────────┐       ┌─────────────┐   │
-│  │   iBTCY     │◄─────►│  IBTCYHub   │       │    BTCY     │   │
-│  │   Token     │       │  (Escrow)   │       │    Vault    │   │
-│  │  (ERC-20)   │       │             │       │  (ERC-4626) │   │
-│  └──────┬──────┘       └─────────────┘       └──────┬──────┘   │
-│         │                                           │           │
-│         │◄──────────────────────────────────────────┘           │
-│         │              wrap/unwrap (1:1)                        │
-│         │                                                       │
-│         ▼                                                       │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                    DeFi Protocols                        │   │
-│  │     (Lending, DEXs, Yield Aggregators, Collateral)       │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+---
 
-## Contract Overview
+## Contracts
 
-### iBTCY Token
+| Contract | Purpose |
+|----------|---------|
+| **iBTCY** | NAV-based security token with transfer restrictions |
+| **iBTCYHub** | Handles mint and redeem requests |
+| **BTCY** | ERC-4626 vault wrapping iBTCY |
+| **Pricer** | Oracle integration for NAV pricing |
 
-| Property | Description |
-|----------|-------------|
-| **Standard** | ERC-20 + ERC-2612 (Permit) |
-| **Purpose** | Regulated security token |
-| **Key Features** | Allowlist, blocklist, force actions |
-| **Upgradeability** | UUPS with timelock |
+---
 
-### IBTCYHub
+## iBTCY
 
-| Property | Description |
-|----------|-------------|
-| **Purpose** | Manages mint/redeem requests |
-| **Key Features** | Async operations, escrow, partial processing |
-| **Oracle Integration** | NAV + BTC/USD feeds |
-| **Upgradeability** | UUPS with timelock |
+The institutional token. Key features:
 
-### BTCY Vault
-
-| Property | Description |
-|----------|-------------|
-| **Standard** | ERC-4626 |
-| **Purpose** | DeFi wrapper for iBTCY |
-| **Exchange Rate** | Fixed 1:1 |
-| **Key Features** | Blocklist for transfers, allowlist for withdrawals |
-
-## Contract Inheritance
-
-```
-iBTCY Token
-├── ERC20Upgradeable
-├── ERC20PermitUpgradeable
-├── AccessControlUpgradeable
-├── PausableUpgradeable
-├── ReentrancyGuardUpgradeable
-└── UUPSUpgradeable
-
-IBTCYHub
-├── AccessControlUpgradeable
-├── PausableUpgradeable
-├── ReentrancyGuardUpgradeable
-└── UUPSUpgradeable
-
-BTCY Vault
-├── ERC4626Upgradeable
-├── AccessControlUpgradeable
-├── PausableUpgradeable
-├── ReentrancyGuardUpgradeable
-└── UUPSUpgradeable
-```
-
-## Storage Pattern
-
-All contracts use **ERC-7201 namespaced storage** to prevent slot collisions during upgrades:
+- **ERC-20** with transfer hooks
+- **Allowlist** — only approved addresses can hold/transfer
+- **Blocklist** — sanctioned addresses are blocked
+- **Pausable** — emergency stop capability
 
 ```solidity
-/// @custom:storage-location erc7201:aarc.storage.ibtcy
-struct IBTCYStorage {
-    mapping(address => bool) allowlisted;
-    mapping(address => bool) blocklisted;
-    bool allowlistEnabled;
-    // ...
+// Transfer restriction
+function _update(address from, address to, uint256 amount) internal override {
+    require(allowlist.isAllowed(to), "Recipient not allowed");
+    require(!blocklist.isBlocked(from), "Sender blocked");
+    super._update(from, to, amount);
 }
 ```
 
+---
+
+## iBTCYHub
+
+Manages the mint/redeem lifecycle:
+
+1. **Request** — User submits mint/redeem request
+2. **Validate** — Hub validates eligibility and amounts
+3. **Process** — Operator processes after off-chain settlement
+4. **Complete** — Tokens minted or redeemed
+
+Key features:
+- Asynchronous two-phase operations
+- Request expiry for stale requests
+- Minimum amounts and daily limits
+
+---
+
+## BTCY Vault
+
+ERC-4626 tokenized vault:
+
+- **1:1 wrapping** — deposit iBTCY, receive BTCY
+- **Instant** — wrap/unwrap in single transaction
+- **Allowlist on unwrap** — only allowlisted addresses can receive iBTCY
+
+```solidity
+function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
+    shares = assets; // 1:1 exchange
+    iBTCY.transferFrom(msg.sender, address(this), assets);
+    _mint(receiver, shares);
+}
+```
+
+---
+
+## Pricer
+
+Oracle integration for NAV pricing:
+
+- **Chainlink feeds** — NAV and BTC/USD prices
+- **Staleness checks** — reject stale data
+- **Price bounds** — flag extreme values
+- **Fallback** — graceful degradation
+
+---
+
 ## Upgrade Pattern
 
-UUPS (Universal Upgradeable Proxy Standard) with timelocks:
+All contracts use **UUPS** (Universal Upgradeable Proxy Standard):
 
-```
-┌─────────────────┐    48h delay    ┌─────────────────┐
-│ proposeUpgrade()│ ──────────────► │ executeUpgrade()│
-└─────────────────┘                 └─────────────────┘
-         │
-         │ cancelUpgrade()
-         ▼
-┌─────────────────┐
-│   (cancelled)   │
-└─────────────────┘
-```
+- Upgrades require **UPGRADER_ROLE**
+- All upgrades are **timelocked**
+- Implementation changes are logged on-chain
 
-| Upgrade Type | Delay |
-|--------------|-------|
-| Normal | 48 hours |
-| Emergency | 12 hours |
-
-## Next Steps
+---
 
 <CardGroup cols={2}>
-  <Card title="Roles & Permissions" icon="users" href="/developers/architecture/roles-permissions">
-    Learn about access control
+  <Card title="Roles & Permissions" icon="key" href="/developers/architecture/roles-permissions">
+    Access control details
   </Card>
-  <Card title="Oracle Integration" icon="chart-simple" href="/developers/architecture/oracle-pricing">
-    Understand NAV pricing
+  <Card title="Oracle Pricing" icon="chart-line" href="/developers/architecture/oracle-pricing">
+    NAV pricing mechanism
   </Card>
 </CardGroup>
-

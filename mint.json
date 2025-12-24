@@ -16,14 +16,14 @@
       "to": "#7ACC33"
     },
     "background": {
-      "dark": "#0A0A0A",
-      "light": "#FFFFFF"
+      "dark": "#09090B",
+      "light": "#FAFAFA"
     }
   },
   "font": {
     "headings": {
       "family": "Inter",
-      "weight": 700
+      "weight": 600
     },
     "body": {
       "family": "Inter",
@@ -35,13 +35,13 @@
   },
   "topbarLinks": [
     {
-      "name": "Contact",
-      "url": "mailto:contact@aarc.xyz"
+      "name": "Book a Call",
+      "url": "https://calendly.com/rohan-aarc/30min"
     }
   ],
   "topbarCtaButton": {
-    "name": "Launch App",
-    "url": "https://app.aarc.finance",
+    "name": "Join Waitlist",
+    "url": "https://app.youform.com/forms/i3gpul1g",
     "style": "roundedRectangle"
   },
   "tabs": [
@@ -72,7 +72,7 @@
   ],
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Overview",
       "pages": [
         "introduction",
         "how-it-works",
@@ -82,9 +82,9 @@
     {
       "group": "Trust & Security",
       "pages": [
+        "trust-security/custody",
         "trust-security/security",
-        "trust-security/audits",
-        "trust-security/custody"
+        "trust-security/audits"
       ]
     },
     {
@@ -114,8 +114,8 @@
     {
       "group": "Resources",
       "pages": [
-        "resources/contract-addresses",
         "resources/supported-networks",
+        "resources/contract-addresses",
         "resources/glossary",
         "resources/faq"
       ]
@@ -159,10 +159,6 @@
     "discord": "https://discord.gg/aarc"
   },
   "feedback": {
-    "thumbsRating": true,
-    "suggestEdit": true
-  },
-  "seo": {
-    "indexHiddenPages": false
+    "thumbsRating": true
   }
 }

@@ -1,162 +1,91 @@
 ---
 title: "iBTCY Contract"
-description: "Technical reference for the iBTCY token contract"
+sidebarTitle: "iBTCY"
+description: "Technical reference for the iBTCY token contract."
 ---
-
-# iBTCY Contract
-
-The institutional Bitcoin yield token with compliance controls.
 
 ## Overview
 
+iBTCY is an ERC-20 token with transfer restrictions for regulatory compliance.
+
+---
+
+## Contract Details
+
 | Property | Value |
 |----------|-------|
-| Standard | ERC-20 + ERC-2612 |
-| Decimals | 8 |
-| Upgradeability | UUPS |
+| **Standard** | ERC-20 |
+| **Upgradeable** | Yes (UUPS) |
+| **Pausable** | Yes |
+| **Access Control** | Role-based |
 
-## State Variables
+---
 
-```solidity
-// Compliance
-mapping(address => bool) private _allowlisted;
-mapping(address => bool) private _blocklisted;
-bool public allowlistEnabled;
+## Key Functions
 
-// Optional sanction oracle
-address public sanctionOracle;
-```
-
-## Functions
-
-### Allowlist Management
+### Transfers
 
 ```solidity
-function addToAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
-function removeFromAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
-function batchAddToAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function batchRemoveFromAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function setAllowlistEnabled(bool enabled) external onlyRole(COMPLIANCE_ROLE);
-function isAllowlisted(address account) public view returns (bool);
+function transfer(address to, uint256 amount) external returns (bool);
+function transferFrom(address from, address to, uint256 amount) external returns (bool);
 ```
 
-### Blocklist Management
+Transfers are restricted:
+- Recipient must be on allowlist
+- Sender must not be on blocklist
+- Contract must not be paused
+
+### Allowlist
 
 ```solidity
-function addToBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
-function removeFromBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
-function batchAddToBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function batchRemoveFromBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function isBlocklisted(address account) public view returns (bool);
-function isFrozen(address account) external view returns (bool); // Alias
+function isAllowed(address account) external view returns (bool);
 ```
 
-### Force Actions
+Check if an address can hold iBTCY.
+
+### Blocklist
 
 ```solidity
-function forceTransfer(
-    address from,
-    address to,
-    uint256 amount,
-    string calldata legalReference
-) external onlyRole(COMPLIANCE_ROLE);
-
-function forceRedeem(
-    address from,
-    uint256 amount,
-    string calldata legalReference
-) external onlyRole(COMPLIANCE_ROLE);
+function isBlocked(address account) external view returns (bool);
 ```
 
-**Requirements:**
-- `from` must be blocklisted
-- `to` must NOT be blocklisted (for transfer)
-- `to` must be allowlisted (for transfer)
-- `legalReference` cannot be empty
+Check if an address is blocked.
 
-### Minting & Burning
-
-```solidity
-function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE);
-function burn(address from, uint256 amount) external onlyRole(BURNER_ROLE);
-```
-
-### Rescue Functions
-
-```solidity
-function rescueERC20(address token, address to, uint256 amount) external onlyRole(RESCUER_ROLE);
-function rescueETH(address payable to, uint256 amount) external onlyRole(RESCUER_ROLE);
-```
-
-## Transfer Logic
-
-```solidity
-function _update(address from, address to, uint256 amount) internal override whenNotPaused {
-    // BLOCKLIST CHECKS FIRST (fail fast)
-    if (from != address(0)) {
-        require(!isBlocklisted(from), SenderBlocklisted());
-    }
-    if (to != address(0)) {
-        require(!isBlocklisted(to), RecipientBlocklisted());
-    }
-    
-    // ALLOWLIST CHECKS (skip for mint/burn)
-    if (from != address(0)) {
-        require(isAllowlisted(from), SenderNotAllowlisted());
-    }
-    if (to != address(0)) {
-        require(isAllowlisted(to), RecipientNotAllowlisted());
-    }
-    
-    // Check spender for transferFrom
-    address spender = _msgSender();
-    if (from != spender && to != spender && from != address(0) && to != address(0)) {
-        require(isAllowlisted(spender), SpenderNotAllowlisted());
-    }
-    
-    super._update(from, to, amount);
-}
-```
+---
 
 ## Events
 
 ```solidity
-event Allowlisted(address indexed account);
-event RemovedFromAllowlist(address indexed account);
-event AllowlistEnabledChanged(bool enabled);
-event Blocklisted(address indexed account);
-event RemovedFromBlocklist(address indexed account);
-event ForcedTransfer(address indexed from, address indexed to, uint256 amount, string legalReference, address indexed executor);
-event ForcedRedemption(address indexed from, uint256 amount, string legalReference, address indexed executor);
-event TokensRescued(address indexed token, address indexed to, uint256 amount);
-event ETHRescued(address indexed to, uint256 amount);
+event Transfer(address indexed from, address indexed to, uint256 value);
+event Approval(address indexed owner, address indexed spender, uint256 value);
+event AllowlistUpdated(address indexed account, bool allowed);
+event BlocklistUpdated(address indexed account, bool blocked);
+event Paused(address account);
+event Unpaused(address account);
 ```
 
-## Custom Errors
+---
+
+## Errors
 
 ```solidity
-error SenderBlocklisted();
-error RecipientBlocklisted();
-error SpenderBlocklisted();
-error SenderNotAllowlisted();
-error RecipientNotAllowlisted();
-error SpenderNotAllowlisted();
-error BatchTooLarge();
-error LegalReferenceRequired();
-error ZeroAddress();
+error RecipientNotAllowed(address recipient);
+error SenderBlocked(address sender);
+error ContractPaused();
 ```
 
-## Initialization
+---
 
-```solidity
-function initialize(
-    string memory name_,           // "Institutional BTCY"
-    string memory symbol_,         // "iBTCY"
-    address defaultAdmin_,         // Cold 3/5 multisig
-    address complianceAdmin_,      // Ops 2/3 multisig
-    address pauser_,               // Ops 2/3 multisig
-    address upgrader_,             // Cold 3/5 multisig
-    address rescuer_               // Ops 2/3 multisig
-) external initializer;
-```
+## Access Control
 
+| Role | Functions |
+|------|-----------|
+| `COMPLIANCE_ROLE` | `setAllowed`, `setBlocked` |
+| `PAUSER_ROLE` | `pause`, `unpause` |
+| `UPGRADER_ROLE` | `upgradeTo` |
+
+---
+
+<Card title="See Architecture" icon="diagram-project" href="/developers/architecture/overview">
+  How iBTCY fits in the system
+</Card>

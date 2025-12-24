@@ -1,136 +1,71 @@
 ---
 title: "Glossary"
-description: "Key terms and definitions"
+description: "Key terms and definitions."
 ---
-
-# Glossary
 
 ## A
 
-### Allowlist
-A list of approved addresses that can perform certain actions (e.g., transfer iBTCY, withdraw from BTCY vault).
+**Allowlist**
+A list of addresses permitted to hold or transfer iBTCY. Required for compliance with securities regulations.
 
-### AMC (Actively Managed Certificate)
-A Swiss financial instrument that represents ownership in an underlying portfolio, managed by a professional fund manager.
+**AMC (Actively Managed Certificate)**
+A Swiss-regulated investment structure used by iBTCY. Provides clear legal framework for tokenized securities.
 
 ## B
 
-### Blocklist
-A list of addresses prohibited from interacting with the contracts, typically due to compliance/sanctions requirements.
+**BTCY**
+The DeFi-composable wrapper token. An ERC-4626 vault that wraps iBTCY 1:1.
 
-### BTCY
-The DeFi wrapper token (ERC-4626 vault) that represents a 1:1 claim on iBTCY.
-
-## C
-
-### Circuit Breaker
-Automatic mechanism that pauses operations when transaction sizes exceed certain thresholds (e.g., >50% of supply).
-
-### Cold Multisig
-A 3-of-5 multisignature wallet used for high-security operations like upgrades and role management.
-
-## D
-
-### Dead Shares
-1,000,000 shares minted to `address(1)` on first vault deposit to prevent donation attacks.
+**Blocklist**
+A list of addresses prohibited from interacting with the protocol. Used for sanctions compliance.
 
 ## E
 
-### ERC-20
-The standard interface for fungible tokens on Ethereum.
+**ERC-4626**
+Ethereum standard for tokenized vaults. Defines a standard API for yield-bearing vaults.
 
-### ERC-4626
-The standard interface for tokenized vaults, providing a consistent API for yield-bearing tokens.
-
-### Escrow
-iBTCY tokens held by IBTCYHub during pending redemption requests.
-
-## F
-
-### Force Transfer
-Compliance function that allows moving tokens from a blocklisted address to a designated recipient (requires legal reference).
-
-### Force Redeem
-Compliance function that allows burning tokens from a blocklisted address (requires legal reference).
-
-## H
-
-### Hub (IBTCYHub)
-The contract that manages subscription (mint) and redemption (burn) requests for iBTCY.
+**ERC-20**
+Ethereum standard for fungible tokens. Both iBTCY and BTCY are ERC-20 compatible.
 
 ## I
 
-### iBTCY
-The institutional token representing ownership in the underlying BTC yield fund. KYC required.
-
-### Instant Redemption
-Redemption processed immediately (T+0/T+1) from the liquid sleeve. 0.1% fee applies.
+**iBTCY**
+The institutional token representing ownership in Sygnum's BTC yield fund. NAV-based pricing, restricted transfers.
 
 ## K
 
-### KYC (Know Your Customer)
-Identity verification process required to access iBTCY.
-
-## M
-
-### Monthly Redemption
-Redemption processed during monthly dealing windows. No fee applies.
-
-### Multisig
-A wallet requiring multiple signatures to authorize transactions.
+**KYC (Know Your Customer)**
+Identity verification process required to hold iBTCY. Ensures compliance with AML regulations.
 
 ## N
 
-### NAV (Net Asset Value)
-The value of one iBTCY token in BTC, calculated as total fund assets divided by total supply.
+**NAV (Net Asset Value)**
+The value of the underlying fund's assets minus liabilities. iBTCY price is based on NAV.
 
 ## O
 
-### Ops Multisig
-A 2-of-3 multisignature wallet used for day-to-day operations like processing requests and compliance actions.
+**Oracle**
+External data source that provides on-chain price data. BTCY uses Chainlink oracles for NAV pricing.
 
-### Oracle
-External data feed (Chainlink) providing NAV and BTC/USD prices to smart contracts.
+## Q
 
-## P
-
-### Partial Processing
-Processing a subscription or redemption request in multiple chunks.
-
-### Permit
-ERC-2612 extension allowing gasless approvals via signatures.
-
-## R
-
-### Request ID
-Unique identifier for subscription or redemption requests, generated on-chain.
+**Qualified Investor**
+An investor meeting certain financial thresholds or professional status. Required to hold iBTCY.
 
 ## S
 
-### Sleeve
-The liquid portion (~32%) of the fund's assets held for instant redemptions.
-
-### Staleness
-Oracle data that hasn't been updated within expected timeframes.
-
-### Subscription
-The process of converting BTC into iBTCY tokens.
-
-## T
-
-### Timelock
-Delay period before certain operations (like upgrades) can be executed.
+**Sygnum Bank**
+Swiss-regulated digital asset bank providing custody and fund management for BTCY.
 
 ## U
 
-### UUPS
-Universal Upgradeable Proxy Standard - the upgrade pattern used by BTCY contracts.
-
-### Unwrap
-Converting BTCY back to iBTCY by withdrawing from the vault.
+**UUPS (Universal Upgradeable Proxy Standard)**
+Upgrade pattern used by BTCY contracts. Allows bug fixes while maintaining security through timelocks.
 
 ## W
 
-### Wrap
+**Wrap**
 Converting iBTCY to BTCY by depositing into the vault.
 
+**Unwrap**
+Converting BTCY back to iBTCY by withdrawing from the vault.

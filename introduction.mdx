@@ -1,115 +1,73 @@
 ---
-title: "Introduction"
-description: "Institutional Bitcoin yield, built for DeFi"
+title: "BTCY"
+sidebarTitle: "Introduction"
+description: "Institutional Bitcoin yield, built for DeFi."
 ---
 
 <img
-  className="block dark:hidden"
+  className="block dark:hidden rounded-lg"
   src="/images/hero-light.svg"
-  alt="BTCY Hero"
+  alt="BTCY Overview"
 />
 <img
-  className="hidden dark:block"
+  className="hidden dark:block rounded-lg"
   src="/images/hero-dark.svg"
-  alt="BTCY Hero"
+  alt="BTCY Overview"
 />
 
-## What is BTCY?
+---
 
-BTCY is an institutional-grade Bitcoin yield product designed for DeFi composability. It bridges **regulated finance** with **permissionless protocols** through a two-token architecture.
+BTCY is a tokenized Bitcoin yield product backed by **Sygnum Bank**, a Swiss-regulated digital asset bank. 
+
+It bridges institutional-grade BTC yield strategies with DeFi composability through a two-token architecture.
 
 <CardGroup cols={2}>
-  <Card title="iBTCY" icon="building-columns" color="#A5E547">
-    **Institutional Token**
-    
-    NAV-based security token backed by Sygnum's actively managed BTC yield fund. Restricted to qualified investors.
+  <Card title="iBTCY" icon="building-columns">
+    **Institutional token.** NAV-based pricing. Restricted to qualified investors. Backed by Sygnum's actively managed BTC yield fund.
   </Card>
-  <Card title="BTCY" icon="coins" color="#A5E547">
-    **DeFi Wrapper**
-    
-    ERC-4626 vault token. 1:1 backed by iBTCY. Fully composable with lending, DEXs, and collateral protocols.
+  <Card title="BTCY" icon="coins">
+    **DeFi wrapper.** ERC-4626 vault. 1:1 backed by iBTCY. Composable with lending protocols, DEXs, and collateral markets.
   </Card>
 </CardGroup>
 
 ---
 
-## Why BTCY?
+## Why BTCY
 
 <AccordionGroup>
-  <Accordion title="Native Bitcoin Yield" icon="bitcoin" defaultOpen>
-    Bitcoin sitting idle doesn't earn yield. BTCY unlocks ~5% APY through Sygnum's institutional-grade BTC yield strategies—without selling your BTC exposure.
+  <Accordion title="Bitcoin yield without selling BTC" icon="bitcoin">
+    Earn 5-6% APY on your Bitcoin exposure through Sygnum's institutional yield strategies. No need to sell or swap your BTC.
   </Accordion>
-  <Accordion title="DeFi Composability" icon="puzzle-piece">
-    Most institutional products can't enter DeFi. BTCY's two-token design separates compliance (iBTCY) from composability (BTCY), letting you use your yield-bearing BTC anywhere.
+  <Accordion title="Swiss-regulated custody" icon="shield-check">
+    Assets held by Sygnum Bank, a FINMA-licensed Swiss digital asset bank. Bank-grade security and regulatory clarity.
   </Accordion>
-  <Accordion title="Regulatory Clarity" icon="shield-check">
-    Swiss AMC structure with BMA-licensed custody at Sygnum Bank. Clear legal framework, not regulatory arbitrage.
+  <Accordion title="DeFi composable" icon="puzzle-piece">
+    BTCY works like any ERC-20. Use it as collateral, provide liquidity, or integrate into any DeFi protocol.
   </Accordion>
-  <Accordion title="Institutional Custody" icon="vault">
-    Assets held by Sygnum Bank (Switzerland) with Archax as execution partner. Bank-grade security for your Bitcoin.
+  <Accordion title="Multi-chain" icon="link">
+    Available on Ethereum, BNB Chain, Avalanche, and Base.
   </Accordion>
 </AccordionGroup>
 
 ---
 
-## How It Works
+## Get Started
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        INSTITUTIONAL LAYER                       │
-│  ┌─────────┐      ┌─────────┐      ┌─────────┐      ┌─────────┐ │
-│  │   BTC   │ ───► │ SYGNUM  │ ───► │   HUB   │ ───► │  iBTCY  │ │
-│  │         │      │ CUSTODY │      │         │      │         │ │
-│  └─────────┘      └─────────┘      └─────────┘      └─────────┘ │
-└───────────────────────────────────────┬─────────────────────────┘
-                                        │
-                                        ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                          DeFi LAYER                              │
-│  ┌─────────┐      ┌─────────┐      ┌─────────────────────────┐  │
-│  │  iBTCY  │ ───► │  BTCY   │ ───► │   LENDING  │  DEX  │ ...│  │
-│  │         │      │  VAULT  │      │   MARKETS  │ POOLS │    │  │
-│  └─────────┘      └─────────┘      └─────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-<Steps>
-  <Step title="Mint iBTCY">
-    Send BTC to Sygnum custody. Receive iBTCY at NAV price after KYC verification.
-  </Step>
-  <Step title="Wrap to BTCY">
-    Deposit iBTCY into the vault. Receive BTCY 1:1. No fees, instant.
-  </Step>
-  <Step title="Use in DeFi">
-    BTCY works like any ERC-20. Lend it, LP it, use as collateral.
-  </Step>
-  <Step title="Unwrap & Redeem">
-    Convert BTCY → iBTCY → BTC when you're ready to exit.
-  </Step>
-</Steps>
-
----
-
-## Quick Links
-
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="How It Works" icon="diagram-project" href="/how-it-works">
-    Deep dive into the two-token architecture
+    Understand the two-token architecture.
   </Card>
   <Card title="Quick Start" icon="rocket" href="/quick-start">
-    Get started in 3 steps
-  </Card>
-  <Card title="Security" icon="shield-halved" href="/trust-security/security">
-    Understand our security model
+    Three steps to get started.
   </Card>
 </CardGroup>
 
 ---
 
-## Built by Aarc
+<Note>
+**For qualified investors only.** BTCY is available to institutional and accredited investors. Eligibility requirements vary by jurisdiction.
+</Note>
 
-BTCY is built by [Aarc](https://aarc.xyz), the infrastructure layer for institutional DeFi. 
-
-<Card title="Contact Us" icon="envelope" href="mailto:contact@aarc.xyz">
-  Questions? Reach out at **contact@aarc.xyz**
+<Card title="Ready to get started?" icon="calendar" href="https://calendly.com/rohan-aarc/30min">
+  **Book a call** with our team to discuss your requirements.
 </Card>

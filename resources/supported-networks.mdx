@@ -1,46 +1,65 @@
 ---
 title: "Supported Networks"
-description: "Blockchain networks where BTCY is deployed"
+description: "Blockchain networks where BTCY is available."
 ---
-
-# Supported Networks
 
 ## Current Networks
 
-| Network | Chain ID | Status |
-|---------|----------|--------|
-| **Ethereum Mainnet** | 1 | 🟡 Coming Soon |
-| **Sepolia Testnet** | 11155111 | 🟢 Live |
+BTCY is available on the following networks:
+
+| Network | Status | Chain ID |
+|---------|--------|----------|
+| **Ethereum** | Live | 1 |
+| **BNB Chain** | Live | 56 |
+| **Avalanche C-Chain** | Live | 43114 |
+| **Base** | Live | 8453 |
+
+---
 
 ## Network Details
 
-### Ethereum Mainnet
+### Ethereum
 
-| Property | Value |
-|----------|-------|
-| Chain ID | 1 |
-| Currency | ETH |
-| Block Explorer | [etherscan.io](https://etherscan.io) |
-| RPC Endpoints | See [chainlist.org](https://chainlist.org/chain/1) |
+The primary network for BTCY. Highest security and liquidity.
 
-### Sepolia Testnet
+- **Block time:** ~12 seconds
+- **Finality:** ~15 minutes
+- **Gas:** Variable
 
-| Property | Value |
-|----------|-------|
-| Chain ID | 11155111 |
-| Currency | SepoliaETH |
-| Block Explorer | [sepolia.etherscan.io](https://sepolia.etherscan.io) |
-| Faucet | [sepoliafaucet.com](https://sepoliafaucet.com) |
+### BNB Chain
 
-## Future Networks
+Lower gas costs, high throughput.
 
-We are evaluating expansion to additional networks:
+- **Block time:** ~3 seconds
+- **Finality:** ~45 seconds
+- **Gas:** Low
 
-- Arbitrum
-- Base
-- Other L2s
+### Avalanche C-Chain
+
+Fast finality, EVM compatible.
+
+- **Block time:** ~2 seconds
+- **Finality:** ~1 second
+- **Gas:** Low
+
+### Base
+
+Coinbase L2, low cost Ethereum security.
+
+- **Block time:** ~2 seconds
+- **Finality:** Inherits Ethereum
+- **Gas:** Very low
+
+---
+
+## Cross-Chain
 
 <Note>
-  Network expansion will be announced through official channels. Join our Discord for updates.
+Cross-chain bridging is not currently supported. Each network has separate deployments.
 </Note>
 
+---
+
+<Card title="Contract Addresses" icon="file-code" href="/resources/contract-addresses">
+  View deployed contract addresses
+</Card>

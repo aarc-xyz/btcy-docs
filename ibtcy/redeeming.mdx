@@ -1,140 +1,71 @@
 ---
 title: "Redeeming iBTCY"
-description: "How to convert iBTCY back to BTC"
+sidebarTitle: "Redeeming"
+description: "How to redeem iBTCY for BTC."
 ---
 
-# Redeeming iBTCY
+## Overview
 
-Convert your iBTCY tokens back to BTC through the redemption process.
+Redeeming iBTCY converts your tokens back to BTC at the current NAV price.
+
+---
 
 ## Prerequisites
 
-<Check>
-  - Hold iBTCY in your wallet
-  - Minimum $100,000 USD equivalent
-  - Not blocklisted
-</Check>
+To redeem iBTCY:
 
-## Redemption Flow
+1. Hold iBTCY in your allowlisted wallet
+2. If you have BTCY, unwrap it first (see [Unwrapping](/btcy/unwrapping))
+
+---
+
+## Redemption Process
 
 <Steps>
-  <Step title="Request Redemption">
-    Call `requestRedemption()` or use the BTCY app
-    
-    Your iBTCY is transferred to the Hub as escrow
+  <Step title="Submit Request">
+    Initiate a redemption request specifying the amount of iBTCY to redeem.
   </Step>
-  
-  <Step title="Choose Path">
-    Select **Instant** (0.1% fee) or **Monthly** (0% fee)
+  <Step title="Request Validation">
+    The request is validated against your balance and eligibility.
   </Step>
-  
-  <Step title="Processing">
-    Backend processes at current NAV:
-    
-    ```
-    BTC received = iBTCY amount × NAV - fees
-    ```
+  <Step title="NAV Calculation">
+    The redemption amount is calculated at the current NAV.
   </Step>
-  
-  <Step title="Receive BTC">
-    BTC sent to your registered address off-chain
+  <Step title="BTC Transfer">
+    BTC is transferred to your designated address after processing.
   </Step>
 </Steps>
 
-## Redemption Paths
+---
 
-| Path | Timeline | Fee | When Used |
-|------|----------|-----|-----------|
-| **Instant** | T+0 to T+1 | 0.1% (10 bps) | Sleeve has liquidity |
-| **Monthly** | Next dealing window | 0% | Sleeve depleted |
+## Timing
 
-<Info>
-  The 0.1% instant fee helps replenish the liquid sleeve, ensuring fast redemptions remain available.
-</Info>
+| Stage | Duration |
+|-------|----------|
+| Request submission | Immediate |
+| Processing | 1-3 business days |
+| BTC delivery | Same day as processing |
 
-## Partial Processing
+<Note>
+Redemption timing depends on fund liquidity and operational windows.
+</Note>
 
-Large redemptions may be processed in chunks:
+---
 
-```
-Request: 100 iBTCY
-├── Process 1: 50 iBTCY (instant)
-└── Process 2: 50 iBTCY (monthly)
-```
+## Redemption Fees
 
-Track progress via `amountProcessed` in your request.
+See [Fees](/ibtcy/fees) for current redemption fee structure.
 
-## Cancellation
+---
 
-### User Cancellation
+## Important Notes
 
-You can cancel **within 2 hours** of requesting:
+- Redemptions are processed in the order received
+- Large redemptions may be processed over multiple days
+- NAV at time of processing determines the redemption amount
 
-```solidity
-IBTCYHub.cancelRedemption(redemptionId);
-```
+---
 
-Your escrowed iBTCY will be returned.
-
-### Admin Cancellation
-
-Admins can cancel anytime (e.g., for compliance). Tokens are returned unless you're blocklisted.
-
-<Warning>
-  If blocklisted during redemption, your tokens may be recovered to the compliance treasury by Cold 3/5 multisig.
-</Warning>
-
-## NAV Calculation
-
-At time of processing:
-
-```
-BTC Amount = iBTCY Amount × Current NAV - Fee
-```
-
-**Example (Instant):**
-- iBTCY redeemed: 100 iBTCY
-- Current NAV: 1.05 BTC per iBTCY
-- Gross BTC: 100 × 1.05 = 105 BTC
-- Fee (0.1%): 0.105 BTC
-- Net BTC received: **104.895 BTC**
-
-## Request States
-
-| State | Description |
-|-------|-------------|
-| **Pending** | iBTCY escrowed, awaiting processing |
-| **Partially Processed** | Some processed, remainder pending |
-| **Completed** | Fully processed, BTC sent |
-| **Cancelled** | Cancelled, iBTCY returned (if not blocklisted) |
-
-## Tracking Your Request
-
-```solidity
-// Get redemption details
-IBTCYHub.getRedemptionRequest(redemptionId);
-
-// Get all your redemptions
-IBTCYHub.getUserRedemptions(yourAddress);
-
-// Check total escrowed in hub
-IBTCYHub.getTotalEscrowed();
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Can't request redemption">
-    Verify you're allowlisted and not blocklisted. Check minimum amount ($100K USD).
-  </Accordion>
-  <Accordion title="Redemption stuck in pending">
-    Large redemptions may go through monthly dealing. Check if instant capacity was exceeded.
-  </Accordion>
-  <Accordion title="Didn't receive BTC">
-    BTC is sent off-chain. Allow T+1 for instant, or wait for monthly dealing completion.
-  </Accordion>
-  <Accordion title="Want to cancel but past grace period">
-    Contact support. Admin cancellation may be possible depending on processing status.
-  </Accordion>
-</AccordionGroup>
-
+<Card title="Questions?" icon="envelope" href="mailto:contact@aarc.xyz">
+  Contact us for redemption inquiries.
+</Card>

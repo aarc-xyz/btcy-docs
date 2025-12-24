@@ -1,221 +1,99 @@
 ---
 title: "BTCY Vault Contract"
-description: "Technical reference for the BTCY vault contract"
+sidebarTitle: "BTCY Vault"
+description: "Technical reference for the BTCY ERC-4626 vault."
 ---
-
-# BTCY Vault Contract
-
-ERC-4626 vault that wraps iBTCY for DeFi composability.
 
 ## Overview
 
+BTCY is an ERC-4626 tokenized vault that wraps iBTCY tokens.
+
+---
+
+## Contract Details
+
 | Property | Value |
 |----------|-------|
-| Standard | ERC-4626 |
-| Decimals | 8 |
-| Exchange Rate | 1:1 fixed |
-| Upgradeability | UUPS |
+| **Standard** | ERC-4626 |
+| **Underlying** | iBTCY |
+| **Exchange Rate** | 1:1 |
+| **Upgradeable** | Yes (UUPS) |
 
-## State Variables
+---
 
-```solidity
-// Compliance
-mapping(address => bool) private _blocklisted;
-mapping(address => bool) private _allowlisted;
-bool public allowlistEnabled;
-
-// Fees (currently 0)
-uint256 public wrapFeeBps;
-uint256 public unwrapFeeBps;
-uint256 constant MAX_FEE_BPS = 100;
-address public feeRecipient;
-
-// First deposit protection
-uint256 constant MIN_SHARES = 1_000_000;
-address constant DEAD_ADDRESS = address(1);
-```
-
-## Core ERC-4626 Functions
+## Core Functions
 
 ### Deposit (Wrap)
 
 ```solidity
-function deposit(uint256 assets, address receiver)
-    public
-    nonReentrant
-    whenNotPaused
-    returns (uint256 shares);
-
-function mint(uint256 shares, address receiver)
-    public
-    nonReentrant
-    whenNotPaused
-    returns (uint256 assets);
+function deposit(uint256 assets, address receiver) external returns (uint256 shares);
 ```
 
-**Access Control:**
-- Caller: Not blocklisted
-- Receiver: Not blocklisted
-- **No allowlist required**
+Wraps iBTCY into BTCY. Returns shares (always equal to assets for 1:1).
 
 ### Withdraw (Unwrap)
 
 ```solidity
-function withdraw(uint256 assets, address receiver, address owner)
-    public
-    nonReentrant
-    whenNotPaused
-    returns (uint256 shares);
-
-function redeem(uint256 shares, address receiver, address owner)
-    public
-    nonReentrant
-    whenNotPaused
-    returns (uint256 assets);
+function withdraw(uint256 assets, address receiver, address owner) external returns (uint256 shares);
 ```
 
-**Access Control:**
-- Owner: Must be allowlisted
-- Caller: Must be allowlisted (if different from owner)
-- Receiver: Must be allowlisted (if different)
-- Receiver: Must also be allowlisted on **iBTCY**
+Unwraps BTCY back to iBTCY. Receiver must be allowlisted.
 
-## Compliance Functions
-
-### Blocklist
+### Redeem
 
 ```solidity
-function addToBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
-function removeFromBlocklist(address account) external onlyRole(COMPLIANCE_ROLE);
-function batchAddToBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function batchRemoveFromBlocklist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function isBlocklisted(address account) public view returns (bool);
+function redeem(uint256 shares, address receiver, address owner) external returns (uint256 assets);
 ```
 
-### Allowlist
+Alternative to withdraw, specifying shares instead of assets.
 
-```solidity
-function addToAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
-function removeFromAllowlist(address account) external onlyRole(COMPLIANCE_ROLE);
-function batchAddToAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function batchRemoveFromAllowlist(address[] calldata accounts) external onlyRole(COMPLIANCE_ROLE);
-function isAllowlisted(address account) public view returns (bool);
-function setAllowlistEnabled(bool enabled) external onlyRole(COMPLIANCE_ROLE);
-```
-
-## Transfer Logic
-
-```solidity
-function _update(address from, address to, uint256 value) internal override whenNotPaused {
-    // Blocklist checks FIRST (fail fast)
-    require(from == address(0) || !isBlocklisted(from), "Sender blocklisted");
-    require(to == address(0) || !isBlocklisted(to), "Receiver blocklisted");
-    
-    super._update(from, to, value);
-}
-```
-
-## Withdrawal Logic
-
-```solidity
-function _withdraw(
-    address caller,
-    address receiver,
-    address owner,
-    uint256 assets,
-    uint256 shares
-) internal override whenNotPaused {
-    // Blocklist checks (fail fast)
-    require(!isBlocklisted(owner), "Owner blocklisted");
-    require(!isBlocklisted(caller), "Caller blocklisted");
-    require(!isBlocklisted(receiver), "Receiver blocklisted");
-    
-    // Allowlist checks
-    require(isAllowlisted(owner), "Owner not allowlisted");
-    require(owner == caller || isAllowlisted(caller), "Caller not allowlisted");
-    require(owner == receiver || caller == receiver || isAllowlisted(receiver), "Receiver not allowlisted");
-    
-    super._withdraw(caller, receiver, owner, assets, shares);
-}
-```
-
-## First Deposit Protection
-
-```solidity
-function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal override {
-    if (totalSupply() == 0) {
-        // Mint dead shares to prevent donation attack
-        _mint(DEAD_ADDRESS, MIN_SHARES);
-        shares = assets - MIN_SHARES;
-    }
-    
-    super._deposit(caller, receiver, assets, shares);
-}
-```
+---
 
 ## View Functions
 
 ```solidity
-// ERC-4626 standard
-function asset() external view returns (address);
 function totalAssets() external view returns (uint256);
-function convertToShares(uint256 assets) external pure returns (uint256); // Returns assets (1:1)
-function convertToAssets(uint256 shares) external pure returns (uint256); // Returns shares (1:1)
-function maxDeposit(address) external view returns (uint256);
-function maxWithdraw(address owner) external view returns (uint256);
+function convertToShares(uint256 assets) external view returns (uint256);
+function convertToAssets(uint256 shares) external view returns (uint256);
 function previewDeposit(uint256 assets) external view returns (uint256);
 function previewWithdraw(uint256 assets) external view returns (uint256);
-
-// Compliance
-function isBlocklisted(address account) external view returns (bool);
-function isAllowlisted(address account) external view returns (bool);
-function isWithdrawAllowed(address account) external view returns (bool);
-function allowlistEnabled() external view returns (bool);
-
-// Fees
-function wrapFeeBps() external view returns (uint256);
-function unwrapFeeBps() external view returns (uint256);
 ```
+
+All return 1:1 values since exchange rate is fixed.
+
+---
 
 ## Events
 
 ```solidity
-// ERC-4626 standard
 event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
 event Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares);
-
-// Compliance
-event Blocklisted(address indexed account);
-event RemovedFromBlocklist(address indexed account);
-event AddressAllowlisted(address indexed account);
-event AddressRemovedFromAllowlist(address indexed account);
-event AllowlistEnabledChanged(bool enabled);
-
-// Configuration
-event FeeUpdated(string feeType, uint256 oldBps, uint256 newBps);
 ```
 
-## Custom Errors
+---
+
+## Restrictions
+
+| Operation | Restriction |
+|-----------|-------------|
+| Deposit | Sender must be able to transfer iBTCY |
+| Withdraw | Receiver must be on iBTCY allowlist |
+
+---
+
+## Integration Example
 
 ```solidity
-error SenderBlocklisted();
-error ReceiverBlocklisted();
-error OwnerNotAllowlisted();
-error CallerNotAllowlisted();
-error ReceiverNotAllowlisted();
-error ContractPaused();
-error MinSharesViolation();
-error FeeExceedsMax();
-error CannotRescueUnderlying();
+// Wrap iBTCY to BTCY
+ibtcy.approve(address(btcyVault), amount);
+btcyVault.deposit(amount, msg.sender);
+
+// Unwrap BTCY to iBTCY
+btcyVault.withdraw(amount, msg.sender, msg.sender);
 ```
 
-## Important Notes
+---
 
-<Warning>
-  **BTCY has NO force transfer or force redeem capabilities.** It is an autonomous DeFi wrapper. If a user is blocklisted, their BTCY is effectively frozen with no recovery mechanism.
-</Warning>
-
-<Note>
-  **Dual allowlist requirement:** To unwrap BTCY → iBTCY, the receiver must be allowlisted on BOTH BTCY and iBTCY contracts.
-</Note>
-
+<Card title="Integration Guide" icon="puzzle-piece" href="/developers/integration/defi-protocols">
+  How to integrate BTCY
+</Card>

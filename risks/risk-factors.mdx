@@ -1,171 +1,111 @@
 ---
 title: "Risk Factors"
-description: "Understanding the risks of investing in BTCY"
+description: "Important risks to consider before investing."
 ---
 
-# Risk Factors
-
 <Warning>
-  Investing in BTCY involves risks. Please read this section carefully before participating.
+**This is not investment advice.** Please read all risk factors carefully and consult with your financial and legal advisors before investing.
 </Warning>
+
+---
 
 ## Smart Contract Risk
 
-BTCY relies on smart contracts for token management and operations.
-
-**Risks include:**
-- Bugs or vulnerabilities in contract code
-- Unexpected behavior in edge cases
-- Upgrade mechanism exploitation
+BTCY relies on smart contracts that may contain bugs or vulnerabilities.
 
 **Mitigations:**
-- Multiple independent audits
-- Timelocked upgrades (48h normal, 12h emergency)
-- Circuit breakers for large operations
-- Formal verification of critical paths
+- Independent security audits
+- Timelocked upgrades
+- Emergency pause functionality
+- Open source code
 
-## Custodial Risk
+---
 
-BTC backing iBTCY is held by third-party custodians.
+## Custody Risk
 
-**Risks include:**
-- Custodian insolvency
-- Unauthorized access to funds
-- Operational failures
+Assets are held by third-party custodians (Sygnum Bank).
 
 **Mitigations:**
-- Sygnum Bank (Swiss-regulated) as primary custodian
-- Segregated accounts
+- FINMA-regulated Swiss bank
+- Segregated client assets
 - Insurance coverage
-- Regular attestations
+- Multi-signature controls
 
-## Oracle Risk
-
-NAV pricing depends on Chainlink oracle feeds.
-
-**Risks include:**
-- Oracle manipulation
-- Stale or incorrect prices
-- Oracle downtime
-
-**Mitigations:**
-- Multiple Chainlink safety checks
-- Price bounds (0.5-2.0 BTC range)
-- Maximum 5% deviation per update
-- Staleness handling (24h warning, 48h block)
+---
 
 ## Market Risk
 
-**Risks include:**
-- BTC price volatility
-- NAV fluctuations
-- Liquidity constraints during market stress
+The value of iBTCY and BTCY depends on the underlying BTC and fund performance.
+
+**Considerations:**
+- BTC price volatility affects NAV
+- Yield is not guaranteed
+- Past performance does not indicate future results
+
+---
+
+## Oracle Risk
+
+NAV pricing depends on Chainlink oracles.
 
 **Mitigations:**
-- Sleeve reserve (~32% liquid)
-- Instant + monthly redemption paths
-- No leverage in underlying strategy
+- Staleness checks reject outdated data
+- Price bounds flag extreme values
+- Multiple data sources
+- Fallback mechanisms
 
-## Regulatory Risk
-
-**Risks include:**
-- Changes in regulatory frameworks
-- Increased compliance requirements
-- Jurisdiction-specific restrictions
-
-**Mitigations:**
-- Swiss AMC structure
-- Licensed custodians (FINMA, BMA)
-- Proactive compliance monitoring
-- Allowlist/blocklist controls
+---
 
 ## Liquidity Risk
 
-**Risks include:**
-- Insufficient sleeve for instant redemptions
-- Monthly dealing delays
-- DeFi liquidity constraints for BTCY
+Redemptions depend on fund liquidity and operational capacity.
 
-**Mitigations:**
-- ~32% AUM in liquid sleeve
-- Partial processing capability
-- Multiple redemption paths
+**Considerations:**
+- Large redemptions may be delayed
+- NAV at processing time determines redemption value
+- No guaranteed redemption timeline
+
+---
+
+## Regulatory Risk
+
+Regulations around digital assets and tokenized securities continue to evolve.
+
+**Considerations:**
+- Regulatory changes may affect availability
+- Jurisdiction restrictions may change
+- Tax treatment varies by jurisdiction
+
+---
 
 ## Counterparty Risk
 
-**Risks include:**
-- Sygnum fund performance
-- Archax execution issues
-- Third-party service failures
+BTCY involves multiple counterparties:
 
-**Mitigations:**
-- Established institutional partners
-- Diversified service providers
-- Operational redundancy
+| Counterparty | Risk |
+|--------------|------|
+| Sygnum Bank | Custody and fund management |
+| Archax | Execution services |
+| Chainlink | Oracle data |
+| Aarc | Smart contract deployment |
 
-## Execution Risk
-
-**Risks include:**
-- Transaction delays
-- Network congestion
-- Failed transactions
-
-**Mitigations:**
-- Ethereum mainnet reliability
-- Gas fee estimation
-- Retry mechanisms in backend
-
-## Operational Risk
-
-**Risks include:**
-- Key management failures
-- Multisig coordination issues
-- Backend system downtime
-
-**Mitigations:**
-- Cold 3/5 multisig for critical operations
-- Ops 2/3 multisig for daily operations
-- Redundant infrastructure
-
-## Blocklist/Freeze Risk
-
-**Risks include:**
-- Legitimate users incorrectly blocklisted
-- Tokens frozen without recourse
-
-**Mitigations:**
-- Clear compliance procedures
-- Appeals process
-- Force functions require blocklist first (audit trail)
+---
 
 ## Technology Risk
 
-**Risks include:**
-- Ethereum network failures
-- Hard fork complications
-- Upgradeability issues
+Blockchain infrastructure may experience:
 
-**Mitigations:**
-- Battle-tested Ethereum infrastructure
-- Conservative upgrade practices
-- Emergency pause capabilities
+- Network congestion
+- Hard forks
+- Protocol changes
+- Validator issues
 
 ---
 
 <Note>
-  This is not an exhaustive list of risks. The full risk disclosure is available in the prospectus documents.
+This is not an exhaustive list of risks. Please review all documentation and consult advisors before investing.
 </Note>
 
-## Risk Acknowledgment
-
-By participating in BTCY, you acknowledge:
-
-1. You understand the risks described above
-2. You are investing only what you can afford to lose
-3. You have conducted your own due diligence
-4. You meet the eligibility requirements
-
-<Card title="View Legal Documents" icon="file-contract" href="/legal/terms">
-  Read the full Terms of Service
+<Card title="Questions?" icon="envelope" href="mailto:contact@aarc.xyz">
+  Contact us to discuss risk considerations.
 </Card>
-

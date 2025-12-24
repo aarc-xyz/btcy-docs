@@ -1,146 +1,81 @@
 ---
-title: "Unwrapping BTCY"
-description: "How to unwrap BTCY back to iBTCY"
+title: "Unwrapping"
+description: "How to unwrap BTCY back to iBTCY."
 ---
 
-# Unwrapping BTCY → iBTCY
+## Overview
 
-Withdraw from the BTCY vault to receive your iBTCY tokens back.
+Unwrapping converts your BTCY back to iBTCY at a 1:1 ratio. This is required before redeeming to BTC.
+
+---
 
 ## Prerequisites
 
-<Check>
-  - Hold BTCY in your wallet
-  - Allowlisted on BTCY contract
-  - Allowlisted on iBTCY contract
-  - Not blocklisted on either
-</Check>
+To unwrap BTCY:
+
+1. Hold BTCY in your wallet
+2. Your wallet must be allowlisted (to receive iBTCY)
+3. Have ETH for gas
 
 <Warning>
-  **Dual allowlist required**: You must be on both BTCY's and iBTCY's allowlists to unwrap.
+**Allowlist required.** Only allowlisted addresses can receive iBTCY. If your wallet is not allowlisted, you cannot unwrap.
 </Warning>
 
-## How to Unwrap
+---
+
+## Unwrapping Process
 
 <Steps>
-  <Step title="Verify Allowlist Status">
-    Check you're allowlisted on both contracts:
-    
-    ```solidity
-    require(btcyVault.isAllowlisted(msg.sender), "Not on BTCY allowlist");
-    require(ibtcy.isAllowlisted(msg.sender), "Not on iBTCY allowlist");
-    ```
+  <Step title="Verify Allowlist">
+    Confirm your wallet is on the allowlist. If not, contact us to begin onboarding.
   </Step>
-  
-  <Step title="Withdraw (Unwrap)">
-    Call withdraw on the BTCY vault:
-    
-    ```solidity
-    uint256 shares = btcyVault.withdraw(assets, receiver, owner);
-    ```
+  <Step title="Withdraw">
+    Call the withdraw function on the BTCY vault.
   </Step>
-  
   <Step title="Receive iBTCY">
-    iBTCY tokens transferred 1:1 to receiver
+    iBTCY tokens are transferred to your wallet 1:1.
   </Step>
 </Steps>
 
-## Code Example
+---
 
-```solidity
-// Full unwrapping example
-import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+## Key Details
 
-contract UnwrapExample {
-    IERC4626 public btcyVault;
-    
-    function unwrap(uint256 amount) external {
-        // Withdraw iBTCY by burning BTCY
-        // Caller must be allowlisted
-        uint256 sharesBurned = btcyVault.withdraw(
-            amount,      // assets (iBTCY) to receive
-            msg.sender,  // receiver of iBTCY
-            msg.sender   // owner of BTCY shares
-        );
-        
-        // sharesBurned == amount (1:1 ratio)
-    }
-    
-    // Alternative: withdraw on behalf of another user
-    function unwrapFrom(uint256 amount, address owner) external {
-        // Requires owner to have approved this contract
-        btcyVault.withdraw(amount, msg.sender, owner);
-    }
-}
-```
+| Aspect | Detail |
+|--------|--------|
+| **Exchange rate** | 1:1 (always) |
+| **Fee** | No fee |
+| **Speed** | Instant (single transaction) |
+| **Requirement** | Wallet must be allowlisted |
 
-## ERC-4626 Interface
+---
 
-```solidity
-// Preview how much BTCY will be burned
-uint256 shares = btcyVault.previewWithdraw(assets);
+## After Unwrapping
 
-// Check maximum you can withdraw
-uint256 maxWithdraw = btcyVault.maxWithdraw(owner);
+With iBTCY, you can:
 
-// Withdraw by specifying assets
-uint256 shares = btcyVault.withdraw(assets, receiver, owner);
+- **Redeem** — Convert to BTC via Sygnum
+- **Hold** — Continue earning yield
+- **Wrap again** — Convert back to BTCY if needed
+- **Transfer** — Send to other allowlisted addresses
 
-// Alternative: specify shares to burn
-uint256 assets = btcyVault.redeem(shares, receiver, owner);
-```
+---
 
-## Access Control
+## Not Allowlisted?
 
-| Check | Requirement |
-|-------|-------------|
-| Owner | Must be allowlisted on BTCY |
-| Caller | Must be allowlisted on BTCY (if different from owner) |
-| Receiver | Must be allowlisted on BTCY (if different) |
-| Receiver | Must be allowlisted on **iBTCY** (to receive transfer) |
+If your wallet is not allowlisted, you have two options:
 
-<Info>
-  All checks use blocklist-first (fail fast) pattern, then allowlist checks.
-</Info>
+1. **Get allowlisted** — Complete KYC and onboarding
+2. **Sell BTCY** — Trade on secondary markets (no redemption)
 
-## Why Dual Allowlist?
-
-When you unwrap, you're converting back to the regulated iBTCY token:
-
-1. **BTCY allowlist** - Controls who can perform withdrawals from the vault
-2. **iBTCY allowlist** - Controls who can receive iBTCY tokens
-
-Both must pass for the transaction to succeed.
-
-## Fees
-
-| Fee | Rate |
-|-----|------|
-| Unwrap fee | 0% |
-
-## Getting Allowlisted
-
-To unwrap, you need to be allowlisted on both contracts:
-
-1. Complete KYC through the BTCY app
-2. Your address will be added to both allowlists
-3. You can then unwrap freely
-
-<Card title="Start KYC" icon="user-check" href="https://app.btcy.fi/onboard">
-  Complete verification to enable unwrapping
+<Card title="Get Allowlisted" icon="user-check" href="/ibtcy/eligibility">
+  See eligibility requirements
 </Card>
 
-## Troubleshooting
+---
 
-<AccordionGroup>
-  <Accordion title="Transaction reverts with 'Owner not allowlisted'">
-    The owner of the BTCY shares isn't on the BTCY allowlist. Complete KYC first.
-  </Accordion>
-  <Accordion title="Transaction reverts with 'Receiver not allowlisted'">
-    The receiver isn't allowlisted on iBTCY. Use an allowlisted address as receiver.
-  </Accordion>
-  <Accordion title="Can I unwrap to a different address?">
-    Yes, if the receiver is allowlisted on both contracts. Use the `receiver` parameter.
-  </Accordion>
-</AccordionGroup>
+## Next Step
 
+<Card title="Redeem to BTC" icon="bitcoin" href="/ibtcy/redeeming">
+  Learn how to redeem iBTCY for BTC
+</Card>

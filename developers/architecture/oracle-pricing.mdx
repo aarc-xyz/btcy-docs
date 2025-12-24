@@ -1,191 +1,107 @@
 ---
-title: "Oracle & Pricing"
-description: "NAV pricing and Chainlink oracle integration"
+title: "Oracle Pricing"
+description: "NAV pricing via Chainlink oracles."
 ---
 
-# Oracle & Pricing
+## Overview
 
-BTCY uses Chainlink oracles for NAV and BTC/USD price feeds.
+iBTCY is priced based on **Net Asset Value (NAV)**, not market trading. The Pricer contract integrates with Chainlink oracles to provide on-chain NAV data.
 
-## Dual Oracle Setup
+---
 
-| Oracle | Purpose | Example Value |
-|--------|---------|---------------|
-| **NAV Oracle** | iBTCY value in BTC | 1.05 (1 iBTCY = 1.05 BTC) |
-| **BTC/USD Oracle** | BTC price in USD | 100,000 (1 BTC = $100K) |
+## Price Feeds
 
-## NAV Pricing
+| Feed | Purpose |
+|------|---------|
+| **NAV Feed** | Current NAV per iBTCY token |
+| **BTC/USD Feed** | Reference price for conversions |
 
-Net Asset Value represents the value of 1 iBTCY in BTC:
+---
+
+## How It Works
+
+1. **Off-chain calculation** — NAV calculated based on fund assets
+2. **Oracle update** — Price pushed to Chainlink feed
+3. **On-chain read** — Pricer contract reads and validates
+4. **Mint/redeem** — Operations use validated price
 
 ```
-NAV = Total Fund Assets (BTC) / Total iBTCY Supply
+Fund Assets → NAV Calculation → Chainlink Oracle → Pricer Contract → Hub Operations
 ```
 
-### NAV Growth
+---
 
-- **Starting NAV**: 1.0 (1 iBTCY = 1 BTC)
-- **Expected Growth**: ~5% annually
-- **Update Frequency**: Regular Chainlink feed updates
+## Validation
 
-### Minting Calculation
+The Pricer contract validates all price data:
+
+### Staleness Check
 
 ```solidity
-iBTCY_minted = BTC_deposited / NAV_price
-```
-
-**Example:**
-- Deposit: 100 BTC
-- NAV: 1.05
-- Received: 100 / 1.05 = **95.24 iBTCY**
-
-### Redemption Calculation
-
-```solidity
-BTC_received = iBTCY_redeemed × NAV_price - fees
-```
-
-**Example:**
-- Redeem: 100 iBTCY (instant)
-- NAV: 1.05
-- Gross: 100 × 1.05 = 105 BTC
-- Fee (0.1%): 0.105 BTC
-- Net: **104.895 BTC**
-
-## Oracle Safety Checks
-
-Every oracle read includes comprehensive validation:
-
-```solidity
-(
-    uint80 roundId,
-    int256 answer,
-    ,
-    uint256 updatedAt,
-    uint80 answeredInRound
-) = oracle.latestRoundData();
-
-// Required checks
-require(answer > 0, "Invalid price");
-require(updatedAt > 0, "Round incomplete");
-require(answeredInRound >= roundId, "Stale round");
-require(block.timestamp - updatedAt < maxAge, "Oracle stale");
-```
-
-### Check Explanations
-
-| Check | Attack Prevented |
-|-------|------------------|
-| `answer > 0` | Oracle returns zero/garbage |
-| `updatedAt > 0` | Incomplete round data |
-| `answeredInRound >= roundId` | Reading old round |
-| `timestamp check` | Oracle stopped updating |
-
-## Staleness Handling
-
-| Oracle Age | Behavior |
-|------------|----------|
-| < 24 hours | ✅ Use new price, update `lastValidPrice` |
-| 24-48 hours | ⚠️ Use `lastValidPrice`, emit warning |
-| > 48 hours | ❌ Block all operations (revert) |
-
-```solidity
-function _getNavPrice() internal returns (uint256) {
-    // ... oracle read ...
-    
-    uint256 age = block.timestamp - updatedAt;
-    
-    if (age > oracleBlockAge) {
-        revert OracleBlocked();
-    }
-    
-    if (age > oracleWarningAge) {
-        emit OracleStaleWarning(age);
-        return lastValidPrice;
-    }
-    
-    _validatePrice(uint256(answer));
-    return uint256(answer);
-}
-```
-
-## Price Bounds
-
-Prices are validated against configurable bounds:
-
-| Parameter | Default | Configurable | Description |
-|-----------|---------|--------------|-------------|
-| `ABSOLUTE_MIN_NAV` | 0.5 BTC | ❌ Hardcoded | Absolute floor |
-| `minNavPrice` | 0.8 BTC | ✅ | Operational minimum |
-| `maxNavPrice` | 2.0 BTC | ✅ | Operational maximum |
-| `maxPriceDeviationBps` | 500 (5%) | ✅ | Max change per update |
-
-### Deviation Check
-
-Prevents large price jumps (oracle manipulation):
-
-```solidity
-if (lastValidPrice > 0) {
-    uint256 maxChange = (lastValidPrice * maxPriceDeviationBps) / 10000;
-    require(
-        newPrice >= lastValidPrice - maxChange &&
-        newPrice <= lastValidPrice + maxChange,
-        "Price deviation too high"
-    );
-}
-```
-
-## USD Minimum Check
-
-The $100K minimum is checked using BTC/USD oracle:
-
-```solidity
-function _checkMinimumUsd(uint256 btcAmount) internal view {
-    uint256 btcUsdPrice = _getBtcUsdPrice();
-    uint256 usdValue = (btcAmount * btcUsdPrice) / 1e8;
-    require(usdValue >= minimumAmountUsd, "Below minimum");
-}
-```
-
-## Configuration Functions
-
-```solidity
-// Set price bounds (MANAGER_ADMIN)
-function setMinNavPrice(uint256 newMin) external;  // Must be >= ABSOLUTE_MIN_NAV
-function setMaxNavPrice(uint256 newMax) external;  // Must be > minNavPrice
-
-// Set deviation limit (MANAGER_ADMIN)
-function setPriceDeviationBps(uint256 newBps) external;  // Max 1000 (10%)
-
-// Set staleness thresholds (MANAGER_ADMIN)
-function setOracleStaleness(uint256 warningAge, uint256 blockAge) external;
-
-// Update oracle addresses (MANAGER_ADMIN)
-function setNavOracle(address newOracle) external;
-function setBtcUsdOracle(address newOracle) external;
-```
-
-## View Functions
-
-```solidity
-// Get current NAV status
-function getCurrentNav() external view returns (
-    uint256 price,
-    uint256 timestamp,
-    bool isStale
+require(
+    block.timestamp - updatedAt <= maxStaleness,
+    "Price data stale"
 );
-
-// Get full oracle status
-function getOracleStatus() external view returns (
-    uint256 navPrice,
-    uint256 btcUsdPrice,
-    uint256 navUpdatedAt,
-    bool isStale,
-    bool isBlocked
-);
-
-// Preview calculations
-function calculateMintAmount(uint256 btcAmount) external view returns (uint256);
-function calculateRedeemAmount(uint256 ibtcyAmount, bool isInstant) external view returns (uint256, uint256);
 ```
 
+Rejects price data older than the configured threshold.
+
+### Price Bounds
+
+```solidity
+require(
+    price >= minPrice && price <= maxPrice,
+    "Price out of bounds"
+);
+```
+
+Flags extreme values that may indicate oracle issues.
+
+### Sequence Check
+
+```solidity
+require(
+    roundId > lastRoundId,
+    "Stale round"
+);
+```
+
+Ensures price updates are sequential.
+
+---
+
+## Fallback Behavior
+
+If oracle data fails validation:
+
+1. **Pause operations** — New mints/redeems paused
+2. **Existing positions** — Unaffected
+3. **Manual intervention** — Operators investigate and resolve
+
+---
+
+## Update Frequency
+
+NAV is typically updated:
+- **Daily** — End of business day
+- **Ad-hoc** — Significant market movements
+
+---
+
+## Integration
+
+For developers integrating with BTCY pricing:
+
+```solidity
+// Get current NAV price
+(uint256 price, uint256 updatedAt) = pricer.getPrice();
+
+// Calculate iBTCY amount for BTC deposit
+uint256 ibtcyAmount = btcAmount * 1e18 / price;
+```
+
+---
+
+<Card title="Pricer Contract" icon="file-code" href="/developers/contracts/pricer">
+  See Pricer contract reference
+</Card>

@@ -1,129 +1,73 @@
 ---
-title: "Wrapping iBTCY"
-description: "How to wrap iBTCY into BTCY for DeFi use"
+title: "Wrapping"
+description: "How to wrap iBTCY into BTCY."
 ---
 
-# Wrapping iBTCY → BTCY
+## Overview
 
-Deposit iBTCY into the BTCY vault to receive BTCY tokens for DeFi.
+Wrapping converts your iBTCY into BTCY tokens at a 1:1 ratio, enabling DeFi composability.
+
+---
 
 ## Prerequisites
 
-<Check>
-  - Hold iBTCY in your wallet
-  - Not blocklisted on iBTCY or BTCY
-  - Wallet connected
-</Check>
+To wrap iBTCY:
 
-<Info>
-  **No allowlist required** for wrapping. Any iBTCY holder can wrap.
-</Info>
+1. Hold iBTCY in your wallet
+2. Your wallet must be allowlisted for iBTCY transfers
+3. Have ETH for gas
 
-## How to Wrap
+---
+
+## Wrapping Process
 
 <Steps>
-  <Step title="Approve the Vault">
-    Allow BTCY vault to spend your iBTCY:
-    
-    ```solidity
-    ibtcy.approve(btcyVaultAddress, amount);
-    ```
+  <Step title="Approve">
+    Approve the BTCY vault to spend your iBTCY tokens.
   </Step>
-  
-  <Step title="Deposit (Wrap)">
-    Call deposit on the BTCY vault:
-    
-    ```solidity
-    uint256 shares = btcyVault.deposit(amount, receiverAddress);
-    ```
+  <Step title="Deposit">
+    Call the deposit function with the amount of iBTCY to wrap.
   </Step>
-  
   <Step title="Receive BTCY">
-    BTCY tokens minted 1:1 to the receiver address
+    BTCY tokens are minted to your wallet 1:1.
   </Step>
 </Steps>
 
-## Code Example
+---
 
-```solidity
-// Full wrapping example
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+## Key Details
 
-contract WrapExample {
-    IERC20 public ibtcy;
-    IERC4626 public btcyVault;
-    
-    function wrap(uint256 amount) external {
-        // 1. Transfer iBTCY from user
-        ibtcy.transferFrom(msg.sender, address(this), amount);
-        
-        // 2. Approve vault
-        ibtcy.approve(address(btcyVault), amount);
-        
-        // 3. Deposit and receive BTCY
-        uint256 btcyReceived = btcyVault.deposit(amount, msg.sender);
-        
-        // btcyReceived == amount (1:1 ratio)
-    }
-}
-```
+| Aspect | Detail |
+|--------|--------|
+| **Exchange rate** | 1:1 (always) |
+| **Fee** | No fee |
+| **Speed** | Instant (single transaction) |
+| **Reversible** | Yes, via unwrapping |
 
-## ERC-4626 Interface
+---
 
-BTCY implements the standard ERC-4626 vault interface:
+## After Wrapping
 
-```solidity
-// Preview how much BTCY you'll receive
-uint256 shares = btcyVault.previewDeposit(assets);
+Once you have BTCY, you can:
 
-// Check maximum you can deposit
-uint256 maxDeposit = btcyVault.maxDeposit(receiver);
+- **Hold** — Value accrues from underlying fund
+- **Transfer** — Send to any address (no restrictions)
+- **Trade** — Swap on DEXs
+- **Collateralize** — Use in lending protocols
+- **LP** — Provide liquidity
 
-// Deposit assets, receive shares
-uint256 shares = btcyVault.deposit(assets, receiver);
+<Info>
+BTCY can be held by anyone. The allowlist restriction only applies to iBTCY.
+</Info>
 
-// Alternative: specify shares wanted
-uint256 assets = btcyVault.mint(shares, receiver);
-```
+---
 
-## Exchange Rate
+## Unwrapping
 
-The exchange rate is always **1:1**:
+To convert BTCY back to iBTCY (required for redemption to BTC), see [Unwrapping](/btcy/unwrapping).
 
-```solidity
-btcyVault.convertToShares(100e8); // Returns 100e8
-btcyVault.convertToAssets(100e8); // Returns 100e8
-```
+---
 
-<Note>
-  Unlike typical yield vaults, BTCY maintains a fixed 1:1 ratio. No price appreciation or depreciation occurs in the vault itself.
-</Note>
-
-## Access Control
-
-| Check | Requirement |
-|-------|-------------|
-| Caller | Not blocklisted |
-| Receiver | Not blocklisted |
-| Allowlist | **Not required** |
-
-## Fees
-
-| Fee | Rate |
-|-----|------|
-| Wrap fee | 0% |
-
-## What's Next?
-
-After wrapping, you can use BTCY in any DeFi protocol:
-
-<CardGroup cols={2}>
-  <Card title="Use in DeFi" icon="chart-line" href="/developers/integration/defi-protocols">
-    See integration examples
-  </Card>
-  <Card title="Unwrap Later" icon="arrow-left" href="/btcy/unwrapping">
-    Learn how to unwrap when needed
-  </Card>
-</CardGroup>
-
+<Card title="Need iBTCY first?" icon="arrow-left" href="/ibtcy/minting">
+  Learn how to mint iBTCY
+</Card>

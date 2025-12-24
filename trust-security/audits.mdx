@@ -1,57 +1,48 @@
 ---
 title: "Audits"
-description: "Smart contract security audits and bug bounty program"
+description: "Independent security audits and ongoing monitoring."
 ---
 
-# Security Audits
-
-BTCY smart contracts undergo rigorous security review before deployment.
-
-## Completed Audits
-
-| Auditor | Scope | Date | Report |
-|---------|-------|------|--------|
-| *Coming Soon* | iBTCY, IBTCYHub, BTCY Vault | Q1 2025 | [View Report](#) |
-
-<Note>
-  Audit reports will be published here upon completion. Contracts are currently in final review.
-</Note>
-
-## Audit Scope
-
-All audits cover:
-
-- Access control logic
-- Oracle integration
-- Upgrade mechanisms
-- Circuit breaker logic
-- Force/recovery functions
-- Reentrancy protection
-- Integer overflow/underflow
-
-## Bug Bounty Program
-
-*Coming Soon*
-
-We're launching a bug bounty program to reward security researchers who identify vulnerabilities.
-
-### Severity Levels
-
-| Severity | Example | Reward |
-|----------|---------|--------|
-| Critical | Fund theft, unauthorized minting | Up to $100,000 |
-| High | Privilege escalation, oracle manipulation | Up to $25,000 |
-| Medium | DoS, griefing attacks | Up to $5,000 |
-| Low | Gas optimization, minor issues | Up to $1,000 |
-
-## Report a Vulnerability
-
-If you discover a security issue, please report it responsibly:
-
-- **Email**: security@aarc.xyz
-- **PGP Key**: [Available on request]
+## Audit Status
 
 <Warning>
-  **Do not disclose vulnerabilities publicly** until they have been addressed. Responsible disclosure is rewarded.
+**Audits in progress.** Smart contract audits are currently underway. This page will be updated with audit reports upon completion.
 </Warning>
 
+---
+
+## Planned Audits
+
+| Scope | Status |
+|-------|--------|
+| iBTCY token contract | In progress |
+| iBTCY Hub (mint/redeem) | In progress |
+| BTCY Vault (ERC-4626) | In progress |
+| Pricer (oracle integration) | In progress |
+
+---
+
+## Security Practices
+
+While audits are in progress, the following security practices are in place:
+
+- **Internal review** — Multiple rounds of code review by security-focused engineers
+- **Test coverage** — Comprehensive unit and integration tests
+- **Formal verification** — Critical invariants are formally specified
+- **Bug bounty** — Program to be announced
+
+---
+
+## Open Source
+
+All smart contracts will be verified and open source on block explorers.
+
+<Card title="GitHub" icon="github" href="https://github.com/aarc-xyz">
+  View source code (available after launch)
+</Card>
+
+---
+
+<Note>
+Questions about security? Contact us at [contact@aarc.xyz](mailto:contact@aarc.xyz)
+</Note>

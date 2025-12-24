@@ -1,114 +1,77 @@
 ---
 title: "Minting iBTCY"
-description: "How to subscribe and receive iBTCY tokens"
+sidebarTitle: "Minting"
+description: "How to mint iBTCY tokens."
 ---
 
-# Minting iBTCY
+## Overview
 
-Convert your BTC into iBTCY through the subscription process.
+Minting iBTCY converts your BTC into yield-bearing iBTCY tokens at the current NAV price.
+
+---
 
 ## Prerequisites
 
-<Check>
-  - Completed KYC and added to allowlist
-  - Minimum $100,000 USD equivalent in BTC
-  - Wallet connected to BTCY app
-</Check>
+Before minting, you must:
 
-## Subscription Flow
+1. Complete KYC verification
+2. Sign subscription documents
+3. Have an allowlisted wallet address
+
+<Card title="Not onboarded yet?" icon="user-plus" href="/quick-start">
+  See the Quick Start guide to begin onboarding.
+</Card>
+
+---
+
+## Minting Process
 
 <Steps>
-  <Step title="Initiate Subscription">
-    Log into the BTCY app and select "Mint iBTCY"
+  <Step title="Deposit BTC">
+    Send BTC to the designated Sygnum custody address provided during onboarding.
   </Step>
-  
-  <Step title="Send BTC">
-    Transfer BTC to the provided Archax custody address
-    
-    <Warning>
-      Only send from your verified wallet. Deposits from unverified addresses cannot be processed.
-    </Warning>
+  <Step title="Request Confirmation">
+    Your deposit is confirmed and a mint request is created.
   </Step>
-  
-  <Step title="Request Created">
-    Once BTC is detected, a subscription request is created on-chain with a unique ID
+  <Step title="NAV Calculation">
+    The current NAV is determined based on the fund's assets.
   </Step>
-  
-  <Step title="Processing">
-    Backend verifies receipt and processes at current NAV price
-    
-    ```
-    iBTCY received = BTC sent / NAV price
-    ```
-  </Step>
-  
-  <Step title="Receive iBTCY">
-    iBTCY tokens minted directly to your wallet
+  <Step title="iBTCY Minted">
+    iBTCY tokens are minted to your allowlisted wallet address.
   </Step>
 </Steps>
 
-## Processing Paths
+---
 
-| Path | When | Timeline | Fee |
-|------|------|----------|-----|
-| **Instant** | Sleeve has capacity | T+0 to T+1 | 0% |
-| **Queued** | Exceeds sleeve | Monthly dealing window | 0% |
+## Timing
+
+| Stage | Duration |
+|-------|----------|
+| BTC confirmation | ~1 hour (6 confirmations) |
+| Mint processing | Same business day |
+| iBTCY delivery | Immediate after processing |
 
 <Info>
-  The "sleeve" is ~32% of AUM kept liquid for instant processing. Large subscriptions may be partially instant, partially queued.
+Minting uses the NAV at the time of processing, not the time of deposit.
 </Info>
 
-## NAV Calculation
+---
 
-At time of processing:
+## Minimum Amounts
 
-```
-iBTCY Amount = BTC Amount / Current NAV
-```
+Contact us for current minimum investment amounts.
 
-**Example:**
-- BTC sent: 100 BTC
-- Current NAV: 1.05 BTC per iBTCY
-- iBTCY received: 100 / 1.05 = **95.24 iBTCY**
+---
 
-## Request States
+## After Minting
 
-| State | Description |
-|-------|-------------|
-| **Pending** | Request created, awaiting processing |
-| **Partially Processed** | Some amount processed, remainder pending |
-| **Completed** | Fully processed, iBTCY minted |
-| **Cancelled** | Cancelled by admin (BTC refunded off-chain) |
+Once you have iBTCY, you can:
 
-## Cancellation
+- **Hold** — Earn yield from the underlying fund
+- **Wrap to BTCY** — Convert to BTCY for DeFi use
+- **Transfer** — Send to other allowlisted addresses
+- **Redeem** — Convert back to BTC
 
-<Note>
-  **Users cannot cancel subscriptions** because BTC has already been sent off-chain. Only admins can cancel (e.g., for compliance issues), and BTC will be refunded.
-</Note>
-
-## Tracking Your Request
-
-View your subscription status in the BTCY app dashboard or query on-chain:
-
-```solidity
-// Get subscription details
-IBTCYHub.getSubscriptionRequest(requestId);
-
-// Get all your subscriptions
-IBTCYHub.getUserSubscriptions(yourAddress);
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="My BTC was sent but no request appeared">
-    Allow 10-30 minutes for detection. If issue persists, contact support with your transaction hash.
-  </Accordion>
-  <Accordion title="Request is stuck in pending">
-    Large requests may require manual verification. Check with support if pending > 24 hours.
-  </Accordion>
-  <Accordion title="Received less iBTCY than expected">
-    NAV may have changed between deposit and processing. Check the NAV at processing time.
-  </Accordion>
-</AccordionGroup>
-
+<Card title="Next: Wrapping" icon="arrow-right" href="/btcy/wrapping">
+  Learn how to wrap iBTCY into BTCY for DeFi.
+</Card>

@@ -1,35 +1,103 @@
 ---
 title: "Pricer Contract"
-description: "NAV pricing contract reference"
+sidebarTitle: "Pricer"
+description: "Technical reference for the Pricer oracle integration."
 ---
-
-# Pricer Contract
-
-*This page is a placeholder. The Pricer contract documentation will be added when the contract is finalized.*
 
 ## Overview
 
-The Pricer contract may be used to:
+Pricer provides validated NAV pricing for iBTCY operations via Chainlink oracles.
 
-- Aggregate NAV price feeds
-- Provide fallback pricing logic
-- Handle price smoothing or TWAP
+---
 
-## Current Implementation
+## Contract Details
 
-NAV pricing is currently handled directly in IBTCYHub via Chainlink oracle integration.
+| Property | Value |
+|----------|-------|
+| **Oracle** | Chainlink |
+| **Feeds** | NAV, BTC/USD |
+| **Validation** | Staleness, bounds |
 
-See [Oracle & Pricing](/developers/architecture/oracle-pricing) for current implementation details.
+---
 
-## Future Considerations
+## Core Functions
 
-A dedicated Pricer contract may be introduced for:
+### Get Price
 
-- Multi-source price aggregation
-- More sophisticated price validation
-- Cross-chain price feeds
+```solidity
+function getPrice() external view returns (uint256 price, uint256 updatedAt);
+```
 
-<Note>
-  Check back for updates as the system evolves.
-</Note>
+Returns the current NAV price and last update timestamp.
 
+### Get BTC Price
+
+```solidity
+function getBtcPrice() external view returns (uint256 price, uint256 updatedAt);
+```
+
+Returns the current BTC/USD price.
+
+### Convert
+
+```solidity
+function btcToIbtcy(uint256 btcAmount) external view returns (uint256 ibtcyAmount);
+function ibtcyToBtc(uint256 ibtcyAmount) external view returns (uint256 btcAmount);
+```
+
+Convert between BTC and iBTCY amounts at current NAV.
+
+---
+
+## Validation
+
+The Pricer validates all oracle data:
+
+```solidity
+// Staleness check
+require(block.timestamp - updatedAt <= maxStaleness, "Stale price");
+
+// Bounds check
+require(price >= minPrice && price <= maxPrice, "Price out of bounds");
+
+// Sequence check  
+require(roundId > lastRoundId, "Invalid round");
+```
+
+---
+
+## Configuration
+
+| Parameter | Description |
+|-----------|-------------|
+| `maxStaleness` | Maximum age of price data |
+| `minPrice` | Lower bound for NAV |
+| `maxPrice` | Upper bound for NAV |
+| `navFeed` | Chainlink NAV feed address |
+| `btcFeed` | Chainlink BTC/USD feed address |
+
+---
+
+## Events
+
+```solidity
+event PriceUpdated(uint256 price, uint256 timestamp);
+event FeedUpdated(address indexed feed, string feedType);
+event BoundsUpdated(uint256 minPrice, uint256 maxPrice);
+```
+
+---
+
+## Errors
+
+```solidity
+error StalePrice(uint256 updatedAt, uint256 maxAge);
+error PriceOutOfBounds(uint256 price, uint256 min, uint256 max);
+error InvalidRound(uint80 roundId);
+```
+
+---
+
+<Card title="See Oracle Architecture" icon="chart-line" href="/developers/architecture/oracle-pricing">
+  How NAV pricing works
+</Card>

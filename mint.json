@@ -1,29 +1,48 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "BTCY Documentation",
+  "name": "BTCY",
   "logo": {
     "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "light": "/logo/light.svg",
+    "href": "https://btcy.fi"
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#F7931A",
-    "light": "#FFB74D",
-    "dark": "#E65100",
+    "primary": "#A5E547",
+    "light": "#B5EF5A",
+    "dark": "#8FD93D",
     "anchors": {
-      "from": "#F7931A",
-      "to": "#FF9800"
+      "from": "#A5E547",
+      "to": "#7ACC33"
+    },
+    "background": {
+      "dark": "#0A0A0A",
+      "light": "#FFFFFF"
     }
+  },
+  "font": {
+    "headings": {
+      "family": "Inter",
+      "weight": 700
+    },
+    "body": {
+      "family": "Inter",
+      "weight": 400
+    }
+  },
+  "modeToggle": {
+    "default": "dark"
   },
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:support@aarc.xyz"
+      "url": "mailto:support@btcy.fi"
     }
   ],
   "topbarCtaButton": {
     "name": "Launch App",
-    "url": "https://app.btcy.fi"
+    "url": "https://app.btcy.fi",
+    "style": "roundedRectangle"
   },
   "tabs": [
     {
@@ -43,12 +62,12 @@
     {
       "name": "GitHub",
       "icon": "github",
-      "url": "https://github.com/aarc-xyz"
+      "url": "https://github.com/aarc-xyz/btcy-contracts"
     },
     {
-      "name": "Community",
-      "icon": "discord",
-      "url": "https://discord.gg/aarc"
+      "name": "Twitter",
+      "icon": "x-twitter",
+      "url": "https://x.com/btcy_fi"
     }
   ],
   "navigation": [
@@ -69,7 +88,7 @@
       ]
     },
     {
-      "group": "iBTCY (Institutional Token)",
+      "group": "iBTCY",
       "pages": [
         "ibtcy/overview",
         "ibtcy/eligibility",
@@ -79,7 +98,7 @@
       ]
     },
     {
-      "group": "BTCY (DeFi Wrapper)",
+      "group": "BTCY",
       "pages": [
         "btcy/overview",
         "btcy/wrapping",
@@ -134,9 +153,20 @@
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/AarcHQ",
+    "x": "https://x.com/btcy_fi",
     "github": "https://github.com/aarc-xyz",
     "linkedin": "https://www.linkedin.com/company/aarc-xyz"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "seo": {
+    "indexHiddenPages": false
+  },
+  "analytics": {
+    "posthog": {
+      "apiKey": ""
+    }
   }
 }
-

@@ -1,0 +1,86 @@
+<svg width="800" height="200" viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mintGradientLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A5E547"/>
+      <stop offset="50%" stop-color="#8FD93D"/>
+      <stop offset="100%" stop-color="#7ACC33"/>
+    </linearGradient>
+    <linearGradient id="bgGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8F9FA"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="200" rx="16" fill="url(#bgGradientLight)" stroke="#E5E7EB" stroke-width="1"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.15">
+    <line x1="100" y1="0" x2="100" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="200" y1="0" x2="200" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="300" y1="0" x2="300" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="400" y1="0" x2="400" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="500" y1="0" x2="500" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="600" y1="0" x2="600" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="700" y1="0" x2="700" y2="200" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="0" y1="50" x2="800" y2="50" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="0" y1="100" x2="800" y2="100" stroke="#7ACC33" stroke-width="0.5"/>
+    <line x1="0" y1="150" x2="800" y2="150" stroke="#7ACC33" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Glow effect -->
+  <ellipse cx="400" cy="100" rx="300" ry="80" fill="#A5E547" opacity="0.08"/>
+  
+  <!-- BTC Symbol -->
+  <g transform="translate(100, 60)">
+    <circle cx="40" cy="40" r="36" fill="#A5E547" opacity="0.15"/>
+    <circle cx="40" cy="40" r="28" stroke="#7ACC33" stroke-width="2" fill="none"/>
+    <text x="40" y="50" font-family="system-ui" font-size="28" font-weight="700" fill="#5BA020" text-anchor="middle">₿</text>
+  </g>
+  
+  <!-- Arrow -->
+  <g transform="translate(200, 85)">
+    <path d="M0 15 L60 15 M45 5 L60 15 L45 25" stroke="#7ACC33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  </g>
+  
+  <!-- iBTCY Token -->
+  <g transform="translate(300, 60)">
+    <rect x="10" y="10" width="60" height="60" rx="12" fill="#A5E547" opacity="0.15"/>
+    <rect x="15" y="15" width="50" height="50" rx="10" stroke="#7ACC33" stroke-width="2" fill="none"/>
+    <text x="40" y="48" font-family="system-ui" font-size="14" font-weight="600" fill="#5BA020" text-anchor="middle">iBTCY</text>
+  </g>
+  
+  <!-- Arrow -->
+  <g transform="translate(400, 85)">
+    <path d="M0 15 L60 15 M45 5 L60 15 L45 25" stroke="#7ACC33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  </g>
+  
+  <!-- BTCY Token -->
+  <g transform="translate(500, 60)">
+    <rect x="10" y="10" width="60" height="60" rx="12" fill="url(#mintGradientLight)" opacity="0.25"/>
+    <rect x="15" y="15" width="50" height="50" rx="10" stroke="url(#mintGradientLight)" stroke-width="2" fill="none"/>
+    <text x="40" y="48" font-family="system-ui" font-size="14" font-weight="700" fill="#5BA020" text-anchor="middle">BTCY</text>
+  </g>
+  
+  <!-- Arrow -->
+  <g transform="translate(600, 85)">
+    <path d="M0 15 L60 15 M45 5 L60 15 L45 25" stroke="#7ACC33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  </g>
+  
+  <!-- DeFi Icon -->
+  <g transform="translate(700, 60)">
+    <circle cx="40" cy="40" r="28" stroke="#7ACC33" stroke-width="2" fill="none" opacity="0.7"/>
+    <circle cx="30" cy="35" r="8" stroke="#7ACC33" stroke-width="1.5" fill="none"/>
+    <circle cx="50" cy="35" r="8" stroke="#7ACC33" stroke-width="1.5" fill="none"/>
+    <circle cx="40" cy="52" r="8" stroke="#7ACC33" stroke-width="1.5" fill="none"/>
+    <line x1="36" y1="40" x2="44" y2="47" stroke="#7ACC33" stroke-width="1"/>
+    <line x1="44" y1="40" x2="36" y2="47" stroke="#7ACC33" stroke-width="1"/>
+  </g>
+  
+  <!-- Labels -->
+  <text x="140" y="175" font-family="system-ui" font-size="11" fill="#6B7280" text-anchor="middle">Bitcoin</text>
+  <text x="340" y="175" font-family="system-ui" font-size="11" fill="#6B7280" text-anchor="middle">Institutional</text>
+  <text x="540" y="175" font-family="system-ui" font-size="11" fill="#5BA020" text-anchor="middle">DeFi-Ready</text>
+  <text x="740" y="175" font-family="system-ui" font-size="11" fill="#6B7280" text-anchor="middle">Composable</text>
+</svg>
+

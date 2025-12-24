@@ -2,9 +2,9 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "BTCY",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg",
-    "href": "https://btcy.fi"
+    "dark": "/logo/aarc-logo.png",
+    "light": "/logo/aarc-logo.png",
+    "href": "https://aarc.xyz"
   },
   "favicon": "/favicon.svg",
   "colors": {
@@ -35,13 +35,13 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:support@btcy.fi"
+      "name": "Contact",
+      "url": "mailto:contact@aarc.xyz"
     }
   ],
   "topbarCtaButton": {
     "name": "Launch App",
-    "url": "https://app.btcy.fi",
+    "url": "https://app.aarc.finance",
     "style": "roundedRectangle"
   },
   "tabs": [
@@ -62,12 +62,12 @@
     {
       "name": "GitHub",
       "icon": "github",
-      "url": "https://github.com/aarc-xyz/btcy-contracts"
+      "url": "https://github.com/aarc-xyz"
     },
     {
       "name": "Twitter",
       "icon": "x-twitter",
-      "url": "https://x.com/btcy_fi"
+      "url": "https://x.com/0xAarc"
     }
   ],
   "navigation": [
@@ -153,9 +153,10 @@
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/btcy_fi",
+    "x": "https://x.com/0xAarc",
     "github": "https://github.com/aarc-xyz",
-    "linkedin": "https://www.linkedin.com/company/aarc-xyz"
+    "linkedin": "https://www.linkedin.com/company/aarc-xyz",
+    "discord": "https://discord.gg/aarc"
   },
   "feedback": {
     "thumbsRating": true,
@@ -163,10 +164,5 @@
   },
   "seo": {
     "indexHiddenPages": false
-  },
-  "analytics": {
-    "posthog": {
-      "apiKey": ""
-    }
   }
 }
